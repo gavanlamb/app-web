@@ -1,0 +1,6 @@
+environment = "production"
+region="ap-southeast-2"
+domain_name="expensely.co"
+cognito_user_pool_name="expensely"
+cognito_client_name="Expensely"
+time_service_url="time.expensely.io"
