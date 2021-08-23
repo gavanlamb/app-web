@@ -9,16 +9,6 @@ variable "domain_name" {
   type = string
 }
 
-variable "cognito_user_pool_name" {
-  type = string
-}
-variable "cognito_client_name" {
-  type = string
-}
-
-variable "time_service_url" {
-  type = string
-}
 
 ###################################################
 # LOCALS
