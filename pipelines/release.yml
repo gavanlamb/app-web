@@ -25,8 +25,22 @@ pr:
       - '*'
 
 stages:
+  - stage: preview
+    displayName: Preview
+    dependsOn: []
+    variables:
+      - template: variables/production.ap-southeast-2.yml@expensely-templates
+    jobs:
+      - template: templates/release.environment.yml
+        parameters:
+          environment: preview
+          serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
+          stateBucketName: $(terraformStateBucketName)
+          stateLockTableName: $(terraformStateLockTableName)
+          region: $(region)
   - stage: Production
     displayName: Production
+    dependsOn: []
     variables:
       - template: variables/production.ap-southeast-2.yml@expensely-templates
     jobs:
