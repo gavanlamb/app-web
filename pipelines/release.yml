@@ -19,35 +19,21 @@ trigger:
     include:
       - "main"
 
-pr:
-  branches:
-    include:
-      - '*'
+pr: none
 
 stages:
-  - stage: preview
-    displayName: Preview
-    dependsOn: []
-    variables:
-      - template: variables/production.ap-southeast-2.yml@expensely-templates
-    jobs:
-      - template: templates/release.environment.yml
-        parameters:
-          environment: preview
-          serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
-          stateBucketName: $(terraformStateBucketName)
-          stateLockTableName: $(terraformStateLockTableName)
-          region: $(region)
-  - stage: Production
+  - stage: production
     displayName: Production
-    dependsOn: []
     variables:
       - template: variables/production.ap-southeast-2.yml@expensely-templates
     jobs:
-      - template: templates/release.environment.yml
+      - template: templates/environment.release.yml
         parameters:
-          environment: production
-          serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
-          stateBucketName: $(terraformStateBucketName)
-          stateLockTableName: $(terraformStateLockTableName)
-          region: $(region)
+          environment: ${{ variables.environment }}
+          terraformServiceConnectionName: ${{ variables.terraformServiceConnectionName }}
+          awsServiceConnectionName: ${{ variables.terraformServiceConnectionName }}
+          stateBucketName: ${{ variables.terraformStateBucketName }}
+          stateLockTableName: ${{ variables.terraformStateLockTableName }}
+          region: ${{ variables.region }}
+          planAdditionalCommandOptions: '-var-file=variables/production.$(region).tfvars'
+          bucketName: expensely.app

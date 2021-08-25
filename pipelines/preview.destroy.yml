@@ -1,0 +1,109 @@
+name: 1.0$(Rev:.r)
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: gavanlamb/azure-devops-templates
+      endpoint: expensely
+    - repository: expensely-templates
+      type: github
+      name: expensely/azure-devops-templates
+      endpoint: expensely
+
+pool:
+  vmImage: ubuntu-latest
+
+trigger:
+  batch: false
+  branches:
+    include:
+      - main
+
+pr: none
+
+parameters:
+  - name: pullRequestNumber
+    displayName: Number of the pull request
+    type: number
+    default: 0
+
+stages:
+  - stage: preview
+    displayName: Preview
+    pool:
+      vmImage: 'windows-latest'
+    variables:
+      - template: variables/production.ap-southeast-2.yml@expensely-templates
+      - name: environment
+        value: preview
+        readonly: true
+    jobs:
+      - job: setup
+        displayName: Setup
+        steps:
+          - checkout: none
+          - task: PowerShell@2
+            inputs:
+              targetType: inline
+              script: |
+                if(${{parameters.pullRequestNumber}} -gt 0) {
+                  write-host("##vso[task.setvariable variable=pullRequestId;isOutput=true]${{parameters.pullRequestNumber}}")
+                  write-host("##vso[task.setvariable variable=destroy;isOutput=true]true")
+                } else {
+                  echo "$(Build.SourceVersionMessage)"
+                  $found = "$(Build.SourceVersionMessage)" -match '\(\#([0-9]*)\)'
+                  if ($found) {
+                    $pullRequestNumber = $matches[1]
+                    write-host("Identifier:$pullRequestNumber")
+                    write-host("##vso[task.setvariable variable=pullRequestId;isOutput=true]$pullRequestNumber")
+                    Try {
+                      $url = "https://$pullRequestNumber.preview.expensely.app/index.html"
+                      write-host("Url: $url")
+                      $req = Invoke-WebRequest $url -UseBasicParsing
+                      $statusCode = $($req.StatusCode) -as [int]
+                      write-host("Status code: $statusCode")
+                      if($statusCode -gt 0)
+                      {
+                        write-host("##vso[task.setvariable variable=destroy;isOutput=true]true")
+                      }
+                    } Catch {
+                      write-host $_.Exception.Message
+                      write-host("##vso[task.setvariable variable=destroy;isOutput=true]false")
+                    }
+                  } else {
+                    write-host("##vso[task.setvariable variable=destroy;isOutput=true]false")
+                  }
+                }
+            name: set_variables
+            displayName: Set variables
+
+      - deployment: destroy
+        displayName: Destroy
+        dependsOn:
+          - setup
+        variables:
+          pullRequestId: $[ dependencies.setup.outputs['set_variables.pullRequestId'] ]
+          destroy: $[ dependencies.setup.outputs['set_variables.destroy'] ]
+        condition: and(succeeded(), eq(variables.destroy, true))
+        environment: preview
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AWSPowerShellModuleScript@1
+                  displayName: Delet bucket contents
+                  inputs:
+                    awsCredentials: ${{ variables.awsServiceConnectionName }}
+                    regionName: ${{ variables.region }}
+                    scriptType: 'inline'
+                    inlineScript: |
+                      Get-S3Object -BucketName "${{ variables.pullRequestId }}.preview.expensely.app" | Remove-S3Object -Force
+                      (Get-S3Version -BucketName "${{ variables.pullRequestId }}.preview.expensely.app").Versions | Remove-S3Object -Force
+                - template: aws/terraform/destroy.yml@templates
+                  parameters:
+                    serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
+                    destroyAdditionalArguments: -var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=${{ variables.pullRequestId }}.preview.expensely.app" -var="cognito_allowed_oauth_scopes=[]" -var="cognito_app_client_name=web app preview${{ variables.pullRequestId }}" cognito_postman_client_name="postman preview${{ variables.pullRequestId }}"
+                    stateBucketName: ${{ variables.terraformStateBucketName }}
+                    stateLockTableName: ${{ variables.terraformStateLockTableName }}
+                    workspaceName: expensely-web-app-preview${{ variables.pullRequestId }}

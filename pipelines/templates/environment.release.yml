@@ -1,0 +1,89 @@
+parameters:
+  - name: environment
+    displayName: Environment to deploy to
+    type: string
+  - name: region
+    displayName: Name of AWS region to deploy into
+    type: string
+  - name: stateBucketName
+    displayName: Name of the S3 bucket name for the state file
+    type: string
+  - name: stateLockTableName
+    displayName: Name of the DynamoDB table name for state locking
+    type: string
+  - name: terraformServiceConnectionName
+    displayName: Service connection name, used for init & plan
+    type: string
+  - name: awsServiceConnectionName
+    displayName: Service connection name, used for aws calls
+    type: string
+  - name: planAdditionalCommandOptions
+    displayName: Plan command arguments
+    type: string
+  - name: bucketName
+    displayName: Name of bucket tp deploy to
+    type: string
+
+jobs:
+  - job: build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - template: templates/build.yml
+        parameters:
+          environment: ${{ variables.environment }}
+  - job: plan
+    displayName: Plan
+    dependsOn: build
+    steps:
+      - template: aws/terraform/plan.yml@templates
+        parameters:
+          artifactName: ${{ parameters.environment }}_${{ parameters.region }}
+          planAdditionalCommandOptions: ${{ parameters.planAdditionalCommandOptions }}
+          serviceConnectionName: ${{ parameters.serviceConnectionName }}
+          stateBucketName: ${{ parameters.stateBucketName }}
+          stateLockTableName: ${{ parameters.stateLockTableName }}
+          workspaceName: expensely-web-app-${{ parameters.environment }}
+  - template: job/approve.yml@templates
+    parameters:
+      dependsOn: plan
+      timeoutInMinutes: 60
+      notifyUsers: '[Expensely]\Expensely Team'
+  - deployment: apply
+    displayName: Apply
+    dependsOn: approve
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+            - template: aws/terraform/apply.yml@templates
+              parameters:
+                artifactName: ${{ parameters.environment }}_${{ parameters.region }}
+                serviceConnectionName: ${{ parameters.serviceConnectionName }}
+
+            - task: DownloadPipelineArtifact@2
+              displayName: Download artifact
+              inputs:
+                buildType: current
+                artifactName: build.${{ variables.environment }}.$(Build.BuildNumber)
+                targetPath: $(System.ArtifactsDirectory)
+
+            - task: ExtractFiles@1
+              displayName: Extract Archive
+              inputs:
+                archiveFilePatterns: $(System.ArtifactsDirectory)/build.tar.gz
+                destinationFolder: $(System.ArtifactsDirectory)/web-app
+                cleanDestinationFolder: true
+
+            - task: AWSPowerShellModuleScript@1
+              displayName: Upload website
+              inputs:
+                awsCredentials: ${{ parameters.awsServiceConnectionName }}
+                regionName: ${{ parameters.region }}
+                scriptType: inline
+                inlineScript: |
+                  aws s3 sync . s3://$${{ parameters.bucketName }} --delete --exact-timestamps
+                workingDirectory: $(System.ArtifactsDirectory)/web-app
