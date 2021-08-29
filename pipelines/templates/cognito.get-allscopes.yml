@@ -1,0 +1,38 @@
+parameters:
+  - name: serviceConnectionName
+    displayName: Name of the AWS service connection to use
+    type: string
+  - name: region
+    displayName: Name of the AWS region
+    type: string
+  - name: userPoolId
+    displayName: Id of the user pool to get scopes for.
+    type: string
+
+steps:
+  - task: AWSPowerShellModuleScript@1
+    name: get_all_cognito_scopes
+    displayName: Get all cognito scopes
+    inputs:
+      awsCredentials: ${{ parameters.serviceConnectionName }}
+      regionName: ${{ parameters.region }}
+      scriptType: 'inline'
+      inlineScript: |
+        $response=$(aws cognito-idp list-resource-servers --user-pool-id ${{ parameters.userPoolId }} --max-results 50 | ConvertFrom-Json)
+        write-host($response)
+        if($response.ResourceServers.Count -gt 0){
+          $scopes=@()
+          Foreach ($ResourceServer in $response.ResourceServers)
+          {
+            Foreach ($Scope in $ResourceServer.Scopes)
+            {
+              $scope=$ResourceServer.Identifier + '/' + $scope.ScopeName
+              $scopes+=$scope
+            }
+          }
+          $scopesString=$($scopes | ConvertTo-Json -Compress).replace('"','\"')
+          write-host($scopesString)
+          write-host("##vso[task.setvariable variable=scopes;isOutput=true]$scopesString")
+        } else {
+          write-host("##vso[task.setvariable variable=scopes;isOutput=true][]")
+        }

@@ -1,0 +1,92 @@
+name: 1.0$(Rev:.r)
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: gavanlamb/azure-devops-templates
+      endpoint: Expensely
+    - repository: expensely-templates
+      type: github
+      name: expensely/azure-devops-templates
+      endpoint: Expensely
+
+trigger: none
+pr:
+  branches:
+    include:
+      - 'main'
+
+stages:
+  - stage: preview
+    displayName: Preview
+    pool:
+      vmImage: windows-latest
+    variables:
+      - template: variables/preview.ap-southeast-2.yml@expensely-templates
+    jobs:
+      - template: templates/build.yml
+        parameters:
+          environment: ${{ variables.environment }}
+      - job: setup
+        displayName: Setup
+        steps:
+          - template: templates/cognito.get-allscopes.yml
+            parameters:
+              serviceConnectionName: ${{ variables.awsServiceConnectionName }}
+              region: ${{ variables.region }}
+              userPoolId: ap-southeast-2_eAsexsETG
+      - job: plan
+        displayName: Plan
+        dependsOn:
+          - setup
+          - build
+        variables:
+          scopes: $[dependencies.setup.outputs['get_all_cognito_scopes.scopes']]
+        steps:
+          - template: aws/terraform/plan.yml@templates
+            parameters:
+              artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
+              planAdditionalCommandOptions: '-var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=$(System.PullRequest.PullRequestNumber).preview.expensely.app" -var="cognito_app_client_name=web app preview$(System.PullRequest.PullRequestNumber)" -var="cognito_allowed_oauth_scopes=$(scopes)" -var="cognito_postman_client_name=postman preview$(System.PullRequest.PullRequestNumber)"'
+              serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
+              stateBucketName: ${{ variables.terraformStateBucketName }}
+              stateLockTableName: ${{ variables.terraformStateLockTableName }}
+              workspaceName: expensely-web-app-preview$(System.PullRequest.PullRequestNumber)
+      - deployment: deploy
+        displayName: Deploy
+        dependsOn: plan
+        environment: Preview
+        pool:
+          vmImage: windows-latest
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: none
+                - template: aws/terraform/apply.yml@templates
+                  parameters:
+                    artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
+                    serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
+
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download artifact
+                  inputs:
+                    buildType: current
+                    artifactName: build.${{ variables.environment }}.$(Build.BuildNumber)
+                    targetPath: $(System.ArtifactsDirectory)
+
+                - task: ExtractFiles@1
+                  displayName: Extract Archive
+                  inputs:
+                    archiveFilePatterns: $(System.ArtifactsDirectory)/build.tar.gz
+                    destinationFolder: $(System.ArtifactsDirectory)/web-app
+                    cleanDestinationFolder: true
+
+                - task: AWSPowerShellModuleScript@1
+                  displayName: Upload website
+                  inputs:
+                    awsCredentials: ${{ variables.awsServiceConnectionName }}
+                    regionName: ${{ variables.region }}
+                    scriptType: inline
+                    inlineScript: |
+                      aws s3 sync . s3://$(System.PullRequest.PullRequestNumber).preview.expensely.app --delete --exact-timestamps
+                    workingDirectory: $(System.ArtifactsDirectory)/web-app

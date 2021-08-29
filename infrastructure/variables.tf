@@ -5,10 +5,26 @@ variable "region" {
   type = string
 }
 
-variable "domain_name" {
+variable "cognito_name" {
   type = string
 }
-
+variable "cognito_app_client_name" {
+  type = string
+}
+variable "cognito_postman_client_name" {
+  type = string
+}
+variable "cognito_allowed_oauth_scopes" {
+  type = list(string)
+}
+variable "domain_name" {
+  type = string
+  description = "domain name (or application name if no domain name available)"
+}
+variable "hosted_zone" {
+  type = string
+  description = "Route53 hosted zone"
+}
 
 ###################################################
 # LOCALS
@@ -21,3 +37,7 @@ locals {
     Environment = var.environment
   }
 }
+
+
+
+
