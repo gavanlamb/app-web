@@ -5,7 +5,7 @@ parameters:
 
 steps:
   - task: NodeTool@0
-    displayName: Install Node:14.5.4
+    displayName: Install Node:14.17.5
     inputs:
       versionSpec: 14.17.5
   - task: Npm@1
