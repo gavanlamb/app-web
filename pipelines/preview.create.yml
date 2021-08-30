@@ -26,7 +26,7 @@ stages:
     jobs:
       - template: templates/build.yml
         parameters:
-          environment: ${{ variables.environment }}
+          environment: ${{ variables.environment }}$(System.PullRequest.PullRequestNumber)
       - job: setup
         displayName: Setup
         steps:
@@ -45,7 +45,7 @@ stages:
         steps:
           - template: aws/terraform/plan.yml@templates
             parameters:
-              artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
+              artifactName: ${{ variables.environment }}$(System.PullRequest.PullRequestNumber).terraform
               planAdditionalCommandOptions: '-var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=$(System.PullRequest.PullRequestNumber).preview.expensely.app" -var="cognito_app_client_name=web app preview$(System.PullRequest.PullRequestNumber)" -var="cognito_allowed_oauth_scopes=$(scopes)" -var="cognito_postman_client_name=postman preview$(System.PullRequest.PullRequestNumber)"'
               serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
               stateBucketName: ${{ variables.terraformStateBucketName }}
@@ -64,14 +64,14 @@ stages:
                 - download: none
                 - template: aws/terraform/apply.yml@templates
                   parameters:
-                    artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
+                    artifactName: ${{ variables.environment }}$(System.PullRequest.PullRequestNumber).terraform
                     serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
 
                 - task: DownloadPipelineArtifact@2
                   displayName: Download artifact
                   inputs:
                     buildType: current
-                    artifactName: build.${{ variables.environment }}.$(Build.BuildNumber)
+                    artifactName: ${{ variables.environment }}$(System.PullRequest.PullRequestNumber).build.$(Build.BuildNumber)
                     targetPath: $(System.ArtifactsDirectory)
 
                 - task: ExtractFiles@1
