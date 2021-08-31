@@ -69,7 +69,7 @@ export default function Login() {
           <Stack direction="row" alignItems="center" sx={{ mb: 5 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" gutterBottom>
-                Sign in to Expensely
+                Sign in to Minimal
               </Typography>
               <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
             </Box>
@@ -82,6 +82,11 @@ export default function Login() {
               />
             </Tooltip>
           </Stack>
+
+          <Alert severity="info" sx={{ mb: 3 }}>
+            Use email : <strong>demo@minimals.cc</strong> / password :
+            <strong>&nbsp;demo1234</strong>
+          </Alert>
 
           <LoginForm />
 
