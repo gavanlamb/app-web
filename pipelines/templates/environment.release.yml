@@ -31,7 +31,7 @@ jobs:
 
   - job: plan
     displayName: Plan
-    dependsOn: build
+    dependsOn: application
     steps:
       - template: aws/terraform/plan.yml@templates
         parameters:
@@ -41,11 +41,13 @@ jobs:
           stateBucketName: ${{ parameters.stateBucketName }}
           stateLockTableName: ${{ parameters.stateLockTableName }}
           workspaceName: expensely-web-app-${{ parameters.environment }}
+
   - template: job/approve.yml@templates
     parameters:
       dependsOn: plan
       timeoutInMinutes: 60
       notifyUsers: '[Expensely]\Expensely Team'
+
   - deployment: deploy
     displayName: Deploy
     dependsOn: approve
