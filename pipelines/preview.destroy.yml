@@ -89,7 +89,7 @@ stages:
               steps:
                 - checkout: self
                 - task: AWSPowerShellModuleScript@1
-                  displayName: Delet bucket contents
+                  displayName: Delete bucket contents
                   inputs:
                     awsCredentials: ${{ variables.awsServiceConnectionName }}
                     regionName: ${{ variables.region }}
