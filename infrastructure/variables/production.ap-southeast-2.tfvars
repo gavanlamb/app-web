@@ -11,4 +11,4 @@ cognito_allowed_oauth_scopes=[
 ]
 cognito_app_client_name="web app"
 cognito_postman_client_name="postman"
-ttl=0
+ttl=120
