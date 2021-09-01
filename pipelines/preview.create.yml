@@ -17,8 +17,8 @@ pr:
       - 'main'
 
 stages:
-  - stage: preview
-    displayName: Preview
+  - stage: build
+    displayName: Build
     pool:
       vmImage: windows-latest
     variables:
@@ -27,6 +27,14 @@ stages:
       - template: templates/build.yml
         parameters:
           environment: ${{ variables.environment }}
+
+  - stage: preview
+    displayName: Preview
+    pool:
+      vmImage: windows-latest
+    variables:
+      - template: variables/preview.ap-southeast-2.yml@expensely-templates
+    jobs:
       - job: setup
         displayName: Setup
         steps:
@@ -39,18 +47,17 @@ stages:
         displayName: Plan
         dependsOn:
           - setup
-          - build
         variables:
           scopes: $[dependencies.setup.outputs['get_all_cognito_scopes.scopes']]
         steps:
           - template: aws/terraform/plan.yml@templates
             parameters:
-              artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
-              planAdditionalCommandOptions: '-var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=$(System.PullRequest.PullRequestNumber).preview.expensely.app" -var="cognito_app_client_name=web app preview$(System.PullRequest.PullRequestNumber)" -var="cognito_allowed_oauth_scopes=$(scopes)" -var="cognito_postman_client_name=postman preview$(System.PullRequest.PullRequestNumber)"'
+              artifactName: ${{ variables.environment }}.terraform
+              planAdditionalCommandOptions: '-var-file=variables/${{ variables.environment }}.${{ variables.region }}.tfvars -var="domain_name=$(System.PullRequest.PullRequestNumber).preview.expensely.app" -var="cognito_app_client_name=web app preview$(System.PullRequest.PullRequestNumber)" -var="cognito_allowed_oauth_scopes=$(scopes)" -var="cognito_postman_client_name=postman ${{ variables.environment }}$(System.PullRequest.PullRequestNumber)"'
               serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
               stateBucketName: ${{ variables.terraformStateBucketName }}
               stateLockTableName: ${{ variables.terraformStateLockTableName }}
-              workspaceName: expensely-web-app-preview$(System.PullRequest.PullRequestNumber)
+              workspaceName: expensely-web-app-${{ variables.environment }}$(System.PullRequest.PullRequestNumber)
       - deployment: deploy
         displayName: Deploy
         dependsOn: plan
@@ -64,14 +71,14 @@ stages:
                 - download: none
                 - template: aws/terraform/apply.yml@templates
                   parameters:
-                    artifactName: preview$(System.PullRequest.PullRequestNumber).terraform.${{ variables.region }}
+                    artifactName: ${{ variables.environment }}.terraform
                     serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
 
                 - task: DownloadPipelineArtifact@2
                   displayName: Download artifact
                   inputs:
                     buildType: current
-                    artifactName: build.${{ variables.environment }}.$(Build.BuildNumber)
+                    artifactName: ${{ variables.environment }}.build.$(Build.BuildNumber)
                     targetPath: $(System.ArtifactsDirectory)
 
                 - task: ExtractFiles@1

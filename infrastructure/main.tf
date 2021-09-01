@@ -57,9 +57,9 @@ resource "aws_cloudfront_distribution" "app" {
     }
 
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl = 0
-    default_ttl = 86400
-    max_ttl = 31536000
+    min_ttl = var.ttl
+    default_ttl = var.ttl
+    max_ttl = var.ttl
   }
 
   restrictions {
@@ -129,9 +129,9 @@ resource "aws_cognito_user_pool_client" "app" {
 
   user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]
 
-  access_token_validity = 1
-  id_token_validity = 1
-  refresh_token_validity = 30
+  access_token_validity = 60
+  id_token_validity = 60
+  refresh_token_validity = 60
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows = [
     "code"
@@ -150,7 +150,7 @@ resource "aws_cognito_user_pool_client" "app" {
   default_redirect_uri = "https://${var.domain_name}/dashboard"
   enable_token_revocation = true
   explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_USER_SRP_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
   generate_secret = false
@@ -175,9 +175,9 @@ resource "aws_cognito_user_pool_client" "postman" {
 
   user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]
 
-  access_token_validity = 1
-  id_token_validity = 1
-  refresh_token_validity = 30
+  access_token_validity = 60
+  id_token_validity = 60
+  refresh_token_validity = 60
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows = [
     "code"
@@ -196,7 +196,7 @@ resource "aws_cognito_user_pool_client" "postman" {
   default_redirect_uri = "https://localhost"
   enable_token_revocation = true
   explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_USER_SRP_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
   generate_secret = false

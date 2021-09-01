@@ -1,8 +1,6 @@
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AwsCognitoContext';
 
-// ----------------------------------------------------------------------
-
 const useAuth = () => {
   const context = useContext(AuthContext);
 
