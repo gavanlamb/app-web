@@ -71,7 +71,7 @@ stages:
                   displayName: Download artifact
                   inputs:
                     buildType: current
-                    artifactName: build.${{ variables.environment }}.$(Build.BuildNumber)
+                    artifactName: ${{ variables.environment }}.build.$(Build.BuildNumber)
                     targetPath: $(System.ArtifactsDirectory)
 
                 - task: ExtractFiles@1
