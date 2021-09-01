@@ -30,7 +30,6 @@ stages:
 
   - stage: preview
     displayName: Preview
-    dependsOn: build
     pool:
       vmImage: windows-latest
     variables:
@@ -48,7 +47,6 @@ stages:
         displayName: Plan
         dependsOn:
           - setup
-          - build
         variables:
           scopes: $[dependencies.setup.outputs['get_all_cognito_scopes.scopes']]
         steps:
