@@ -50,7 +50,7 @@ stages:
               serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
               stateBucketName: ${{ variables.terraformStateBucketName }}
               stateLockTableName: ${{ variables.terraformStateLockTableName }}
-              workspaceName: expensely-web-app-${{ variables.environment }}(System.PullRequest.PullRequestNumber)
+              workspaceName: expensely-web-app-${{ variables.environment }}$(System.PullRequest.PullRequestNumber)
       - deployment: deploy
         displayName: Deploy
         dependsOn: plan
