@@ -4,8 +4,8 @@ parameters:
     type: string
 
 jobs:
-  - job: build
-    displayName: Build
+  - job: application
+    displayName: Application
     pool:
       vmImage: ubuntu-latest
     steps:

@@ -17,8 +17,8 @@ pr:
       - 'main'
 
 stages:
-  - stage: preview
-    displayName: Preview
+  - stage: build
+    displayName: Build
     pool:
       vmImage: windows-latest
     variables:
@@ -27,6 +27,15 @@ stages:
       - template: templates/build.yml
         parameters:
           environment: ${{ variables.environment }}
+
+  - stage: preview
+    displayName: Preview
+    dependsOn: build
+    pool:
+      vmImage: windows-latest
+    variables:
+      - template: variables/preview.ap-southeast-2.yml@expensely-templates
+    jobs:
       - job: setup
         displayName: Setup
         steps:
