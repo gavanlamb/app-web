@@ -95,8 +95,10 @@ stages:
                     regionName: ${{ variables.region }}
                     scriptType: 'inline'
                     inlineScript: |
-                      Get-S3Object -BucketName ${{ variables.pullRequestId }}.preview.expensely.app | Remove-S3Object -Force
-                      (Get-S3Version -BucketName ${{ variables.pullRequestId }}.preview.expensely.app).Versions | Remove-S3Object -Force
+                      $url="${{ variables.pullRequestId }}.preview.expensely.app"
+                      write-host($url)
+                      Get-S3Object -BucketName $url | Remove-S3Object -Force
+                      (Get-S3Version -BucketName $url).Versions | Remove-S3Object -Force
                 - template: aws/terraform/destroy.yml@templates
                   parameters:
                     serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
