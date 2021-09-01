@@ -217,8 +217,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         method: 'cognito',
         user: {
-          displayName: state?.user?.name || 'Minimals',
-          role: 'admin',
+          displayName: state?.user?.name || 'Expensely',
+          role: 'user',
           ...state.user
         },
         login,
