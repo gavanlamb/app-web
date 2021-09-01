@@ -29,7 +29,9 @@ jobs:
         inputs:
           command: custom
           workingDir: $(Build.SourcesDirectory)/application
-          customCommand: run build:${{ parameters.environment }}
+          customCommand: run build
+        env:
+          NODE_ENV: ${{ parameters.environment }}
       - task: ArchiveFiles@2
         displayName: Archive
         inputs:
