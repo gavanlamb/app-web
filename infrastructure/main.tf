@@ -150,7 +150,7 @@ resource "aws_cognito_user_pool_client" "app" {
   default_redirect_uri = "https://${var.domain_name}/dashboard"
   enable_token_revocation = true
   explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_USER_SRP_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
   generate_secret = false
@@ -196,7 +196,7 @@ resource "aws_cognito_user_pool_client" "postman" {
   default_redirect_uri = "https://localhost"
   enable_token_revocation = true
   explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_USER_SRP_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
   generate_secret = false
