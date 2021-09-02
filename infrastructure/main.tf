@@ -216,3 +216,4 @@ resource "aws_cognito_user_pool_client" "postman" {
     "given_name",
     "phone_number"]
 }
+
