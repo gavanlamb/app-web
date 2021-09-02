@@ -95,7 +95,7 @@ stages:
                     regionName: ${{ variables.region }}
                     scriptType: 'inline'
                     inlineScript: |
-                      $url="${{ variables.pullRequestId }}.preview.expensely.app"
+                      $url="$(pullRequestId).preview.expensely.app"
                       write-host($url)
                       Get-S3Object -BucketName $url | Remove-S3Object -Force
                       (Get-S3Version -BucketName $url).Versions | Remove-S3Object -Force
