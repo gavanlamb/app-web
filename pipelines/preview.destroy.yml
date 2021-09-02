@@ -98,11 +98,10 @@ stages:
                       $url="$(pullRequestId).preview.expensely.app"
                       write-host($url)
                       Get-S3Object -BucketName $url | Remove-S3Object -Force
-                      (Get-S3Version -BucketName $url).Versions | Remove-S3Object -Force
                 - template: aws/terraform/destroy.yml@templates
                   parameters:
                     serviceConnectionName: ${{ variables.terraformServiceConnectionName }}
-                    destroyAdditionalArguments: -var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=${{ variables.pullRequestId }}.preview.expensely.app" -var="cognito_allowed_oauth_scopes=[]" -var="cognito_app_client_name=web app preview${{ variables.pullRequestId }}" cognito_postman_client_name="postman preview${{ variables.pullRequestId }}"
+                    destroyAdditionalArguments: -var-file=variables/preview.${{ variables.region }}.tfvars -var="domain_name=$(pullRequestId).preview.expensely.app" -var="cognito_allowed_oauth_scopes=[]" -var="cognito_app_client_name=web app preview$(pullRequestId)" cognito_postman_client_name="postman preview$(pullRequestId)"
                     stateBucketName: ${{ variables.terraformStateBucketName }}
                     stateLockTableName: ${{ variables.terraformStateLockTableName }}
-                    workspaceName: expensely-web-app-preview${{ variables.pullRequestId }}
+                    workspaceName: expensely-web-app-preview$(pullRequestId)
