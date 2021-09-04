@@ -44,10 +44,8 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const { method } = useAuth();
-
   return (
-    <RootStyle title="Login | Minimal-UI">
+    <RootStyle title="Login | Expensely">
       <AuthLayout>
         Don’t have an account? &nbsp;
         <Link underline="none" variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
@@ -73,14 +71,6 @@ export default function Login() {
               </Typography>
               <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
             </Box>
-
-            <Tooltip title={capitalCase(method)}>
-              <Box
-                component="img"
-                src={`/static/auth/ic_${method}.png`}
-                sx={{ width: 32, height: 32 }}
-              />
-            </Tooltip>
           </Stack>
 
           <LoginForm />
