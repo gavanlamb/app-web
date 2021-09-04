@@ -192,9 +192,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         [
-          new CognitoUserAttribute({ Name: 'email', Value: email }),
-          new CognitoUserAttribute({ Name: 'given_name', Value: `${firstName}` }),
-          new CognitoUserAttribute({ Name: 'family_name', Value: `${lastName}` })
+          new CognitoUserAttribute({
+            Name: 'email',
+            Value: email
+          }),
+          new CognitoUserAttribute({
+            Name: 'given_name',
+            Value: firstName
+          }),
+          new CognitoUserAttribute({
+            Name: 'family_name',
+            Value: lastName
+          })
         ],
         [],
         async (err) => {
