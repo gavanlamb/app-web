@@ -44,8 +44,6 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Register() {
-  const { method } = useAuth();
-
   return (
     <RootStyle title="Register | Minimal-UI">
       <AuthLayout>
@@ -75,13 +73,6 @@ export default function Register() {
                 Free forever. No credit card needed.
               </Typography>
             </Box>
-            <Tooltip title={capitalCase(method)}>
-              <Box
-                component="img"
-                src={`/static/auth/ic_${method}.png`}
-                sx={{ width: 32, height: 32 }}
-              />
-            </Tooltip>
           </Box>
 
           <RegisterForm />
