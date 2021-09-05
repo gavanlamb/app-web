@@ -4,7 +4,8 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUserSession,
-  CognitoUserAttribute
+  CognitoUserAttribute,
+  ClientMetadata
 } from 'amazon-cognito-identity-js';
 // utils
 import axios from '../utils/axios';
@@ -192,18 +193,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         [
-          new CognitoUserAttribute({
-            Name: 'email',
-            Value: email
-          }),
-          new CognitoUserAttribute({
-            Name: 'given_name',
-            Value: firstName
-          }),
-          new CognitoUserAttribute({
-            Name: 'family_name',
-            Value: lastName
-          })
+          new CognitoUserAttribute({ Name: 'email', Value: email }),
+          new CognitoUserAttribute({ Name: 'given_name', Value: firstName }),
+          new CognitoUserAttribute({ Name: 'family_name', Value: lastName })
         ],
         [],
         async (err) => {
@@ -217,9 +209,66 @@ function AuthProvider({ children }: { children: ReactNode }) {
       );
     });
 
-  const resetPassword = (email: string) => console.log(email);
+  const resetPassword = (email: string) =>
+    new Promise((resolve, reject) => {
+      const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: UserPool
+      });
+
+      console.log(cognitoUser);
+
+      cognitoUser.forgotPassword({
+        onSuccess: (data) => {
+          console.log(data);
+          resolve(data);
+        },
+        onFailure: (err) => {
+          console.log(err);
+          reject(err);
+        },
+        inputVerificationCode: (data) => {
+          const verificationCode = prompt('Please input verification code ', '') as string;
+          const newPassword = prompt('Enter new password ', '') as string;
+          cognitoUser.confirmPassword(verificationCode, newPassword, {
+            onSuccess: () => {
+              console.log(data);
+              resolve(data);
+            },
+            onFailure: (err) => {
+              console.log(err);
+              reject(err);
+            }
+          });
+          resolve(data);
+        }
+      });
+    });
 
   const updateProfile = () => {};
+
+  const confirmRegistration = (
+    code: string,
+    email: string) => new Promise((resolve, reject) => {
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: UserPool
+    });
+
+    cognitoUser.confirmRegistration(
+      code,
+      true,
+      function(err, result) {
+        if (err) {
+          observer.error(err);
+        }
+        observer.next(result);
+        observer.complete();
+      }
+      clientMetadata?: ClientMetadata
+
+    )
+  })
 
   return (
     <AuthContext.Provider
