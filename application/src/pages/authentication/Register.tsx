@@ -1,7 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import { styled } from '@material-ui/core/styles';
-import { Box, Card, Link, Container, Typography, Tooltip } from '@material-ui/core';
+import { Box, Card, Link, Container, Typography } from '@material-ui/core';
 // routes
 import { PATH_AUTH } from '../../routes/paths';
 // layouts
