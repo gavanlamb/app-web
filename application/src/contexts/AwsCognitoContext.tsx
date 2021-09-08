@@ -229,6 +229,22 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = () => {};
 
+  const getProfile = () =>
+    new Promise((resolve, reject) => {
+      const user = UserPool.getCurrentUser();
+      if (user) {
+        user.getUserAttributes((err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(result);
+          }
+        });
+      } else {
+        reject('User is invalid');
+      }
+    });
+
   return (
     <AuthContext.Provider
       value={{

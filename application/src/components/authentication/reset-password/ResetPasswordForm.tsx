@@ -35,7 +35,7 @@ export default function ResetPasswordForm({ onSent, onGetEmail }: ResetPasswordF
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
         const response = await resetPassword(values.email);
-        console.log(response)
+        console.log(response);
         if (isMountedRef.current) {
           onSent();
           onGetEmail(formik.values.email);
