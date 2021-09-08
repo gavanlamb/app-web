@@ -81,7 +81,7 @@ function InvoicePDF({ invoice }: InvoicePDFProps) {
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={[styles.gridContainer, styles.mb40]}>
-          <Image source="/static/brand/logo_full.jpg" style={{ height: 32 }} />
+          <Image source="/static/brand/logo_full.png" style={{ height: 32 }} />
           <View style={{ alignItems: 'flex-end', flexDirection: 'column' }}>
             <Text style={styles.h3}>{status}</Text>
             <Text>INV-{id}</Text>
