@@ -4,11 +4,12 @@
   "version": "2.5.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env.development react-scripts start",
     "build": "react-scripts build",
     "build:preview": "env-cmd -f .env.preview npm run-script build",
     "build:development": "env-cmd -f .env.development npm run-script build",
     "build:production": "env-cmd -f .env.production npm run-script build",
+    "pretty": "prettier --write \"./**/*.{ts,tsx,json}\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .ts,.tsx ./src",
