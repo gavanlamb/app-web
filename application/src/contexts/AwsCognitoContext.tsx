@@ -208,7 +208,24 @@ function AuthProvider({ children }: { children: ReactNode }) {
       );
     });
 
-  const resetPassword = (email: string) => console.log(email);
+  const resetPassword = (email: string) =>
+    new Promise((resolve, reject) => {
+      const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: UserPool
+      });
+
+      cognitoUser.forgotPassword({
+        onSuccess: (data) => {
+          console.log(data);
+          resolve(data);
+        },
+        onFailure: (err) => {
+          console.log(err);
+          reject(err);
+        }
+      });
+    });
 
   const updateProfile = () => {};
 
