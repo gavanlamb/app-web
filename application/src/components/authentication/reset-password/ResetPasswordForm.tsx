@@ -29,7 +29,7 @@ export default function ResetPasswordForm({ onSent, onGetEmail }: ResetPasswordF
 
   const formik = useFormik<InitialValues>({
     initialValues: {
-      email: 'demo@minimals.cc'
+      email: ''
     },
     validationSchema: ResetPasswordSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
