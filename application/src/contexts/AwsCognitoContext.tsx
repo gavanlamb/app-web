@@ -15,10 +15,6 @@ import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types
 //
 import { cognitoConfig } from '../config';
 
-// ----------------------------------------------------------------------
-
-// CAUTION: User Cognito is slily difference from firebase, so be sure to read the doc carefully.
-
 export const UserPool = new CognitoUserPool({
   UserPoolId: cognitoConfig.userPoolId || '',
   ClientId: cognitoConfig.clientId || ''
@@ -91,7 +87,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   const getSession = useCallback(
     () =>
-      new Promise((resolve, reject) => {
+      new Promise<{
+        user: CognitoUser | null;
+        session: CognitoUserSession | null;
+        headers: { Authorization: string | undefined };
+      } | void>((resolve, reject) => {
         const user = UserPool.getCurrentUser();
         if (user) {
           user.getSession(async (err: Error | null, session: CognitoUserSession | null) => {
@@ -100,7 +100,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
             } else {
               const attributes = await getUserAttributes(user);
               const token = session?.getIdToken().getJwtToken();
-              // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
               axios.defaults.headers.common.Authorization = token;
               dispatch({
                 type: Types.auth,
@@ -161,8 +160,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         user.authenticateUser(authDetails, {
-          onSuccess: (data) => {
-            getSession();
+          onSuccess: async (data) => {
+            await getSession();
             resolve(data);
           },
           onFailure: (err) => {
@@ -227,7 +226,29 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
-  const updateProfile = () => {};
+  const updateProfile = (email: string, firstName: string, lastName: string) =>
+    new Promise((resolve, reject) => {
+      getSession().then((session) => {
+        const attributes = [
+          new CognitoUserAttribute({ Name: 'email', Value: email }),
+          new CognitoUserAttribute({ Name: 'given_name', Value: firstName }),
+          new CognitoUserAttribute({ Name: 'family_name', Value: lastName })
+        ];
+        if (session?.user) {
+          session.user.updateAttributes(attributes, async (error: any, result: unknown) => {
+            if (error) {
+              await getSession();
+              reject(error);
+            } else {
+              await getSession();
+              resolve(result);
+            }
+          });
+        } else {
+          reject();
+        }
+      });
+    });
 
   return (
     <AuthContext.Provider
@@ -235,9 +256,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         method: 'cognito',
         user: {
-          displayName: `${state?.user?.given_name} ${state?.user?.family_name}`,
           role: 'user',
-          ...state.user
+          id: state.user?.sub,
+          displayName: `${state?.user?.given_name} ${state?.user?.family_name}`,
+          givenName: state?.user?.given_name,
+          familyName: state?.user?.family_name,
+          phoneNumber: state?.user?.phone_number,
+          email: state?.user?.email
         },
         login,
         register,

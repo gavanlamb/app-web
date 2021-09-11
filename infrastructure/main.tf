@@ -171,6 +171,7 @@ resource "aws_cognito_user_pool_client" "app" {
     "phone_number"]
 }
 resource "aws_cognito_user_pool_client" "postman" {
+  // TODO only create for preview
   name = var.cognito_postman_client_name
 
   user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]

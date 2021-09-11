@@ -1,9 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useSnackbar } from 'notistack5';
 import { useRef, useState } from 'react';
-import homeFill from '@iconify/icons-eva/home-fill';
 import personFill from '@iconify/icons-eva/person-fill';
-import settings2Fill from '@iconify/icons-eva/settings-2-fill';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import { alpha } from '@material-ui/core/styles';
@@ -22,18 +20,8 @@ import MenuPopover from '../../components/MenuPopover';
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
-    icon: homeFill,
-    linkTo: '/'
-  },
-  {
-    label: 'Profile',
+    label: 'Account',
     icon: personFill,
-    linkTo: PATH_DASHBOARD.user.profile
-  },
-  {
-    label: 'Settings',
-    icon: settings2Fill,
     linkTo: PATH_DASHBOARD.user.account
   }
 ];
