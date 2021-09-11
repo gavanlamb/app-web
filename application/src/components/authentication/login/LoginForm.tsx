@@ -67,7 +67,6 @@ export default function LoginForm() {
           setSubmitting(false);
         }
       } catch (error) {
-        console.error(error);
         resetForm();
         if (isMountedRef.current) {
           setSubmitting(false);
