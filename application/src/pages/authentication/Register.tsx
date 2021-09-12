@@ -10,6 +10,7 @@ import AuthLayout from '../../layouts/AuthLayout';
 import Page from '../../components/Page';
 import { MHidden } from '../../components/@material-extend';
 import { RegisterForm } from '../../components/authentication/register';
+import TermsOfServiceLink from '../../components/policy/termsOfServiceLink';
 
 // ----------------------------------------------------------------------
 
@@ -76,21 +77,9 @@ export default function Register() {
 
           <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
             By registering, I agree to Minimal&nbsp;
-            <Link
-              underline="always"
-              color="text.primary"
-              component={RouterLink}
-              to={PATH_PAGE.termsOfService}
-            >
-              Terms of Service
-            </Link>
+            <TermsOfServiceLink />
             &nbsp;and&nbsp;
-            <Link
-              underline="always"
-              color="text.primary"
-              component={RouterLink}
-              to={PATH_PAGE.privacyPolicy}
-            >
+            <Link underline="always" color="text.primary" href="#">
               Privacy Policy
             </Link>
             .
