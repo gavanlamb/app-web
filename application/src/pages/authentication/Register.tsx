@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@material-ui/core/styles';
 import { Box, Card, Link, Container, Typography } from '@material-ui/core';
 // routes
-import { PATH_AUTH, PATH_PAGE } from '../../routes/paths';
+import { PATH_AUTH } from '../../routes/paths';
 // layouts
 import AuthLayout from '../../layouts/AuthLayout';
 // components
