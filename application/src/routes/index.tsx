@@ -157,6 +157,9 @@ export default function Router() {
         { path: 'maintenance', element: <Maintenance /> },
         { path: 'pricing', element: <Pricing /> },
         { path: 'payment', element: <Payment /> },
+        { path: 'terms-of-service', element: <TermsOfService /> },
+        { path: 'privacy-policy', element: <PrivacyPolicy /> },
+        { path: 'cookie-policy', element: <CookiePolicy /> },
         { path: '500', element: <Page500 /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" replace /> }
@@ -279,6 +282,9 @@ const Pricing = Loadable(lazy(() => import('../pages/Pricing')));
 const Payment = Loadable(lazy(() => import('../pages/Payment')));
 const Page500 = Loadable(lazy(() => import('../pages/Page500')));
 const NotFound = Loadable(lazy(() => import('../pages/Page404')));
+const TermsOfService = Loadable(lazy(() => import('../pages/TermsOfService')));
+const PrivacyPolicy = Loadable(lazy(() => import('../pages/PrivacyPolicy')));
+const CookiePolicy = Loadable(lazy(() => import('../pages/CookiePolicy')));
 // Components
 const ComponentsOverview = Loadable(lazy(() => import('../pages/ComponentsOverview')));
 const Color = Loadable(

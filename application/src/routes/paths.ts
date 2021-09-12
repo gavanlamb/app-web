@@ -29,7 +29,10 @@ export const PATH_PAGE = {
   faqs: '/faqs',
   page404: '/404',
   page500: '/500',
-  components: '/components'
+  components: '/components',
+  termsOfService: '/terms-of-service',
+  privacyPolicy: '/privacy-policy',
+  cookiePolicy: '/cookie-policy'
 };
 
 export const PATH_DASHBOARD = {

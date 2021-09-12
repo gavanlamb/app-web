@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@material-ui/core/styles';
 import { Box, Card, Link, Container, Typography } from '@material-ui/core';
 // routes
-import { PATH_AUTH } from '../../routes/paths';
+import { PATH_AUTH, PATH_PAGE } from '../../routes/paths';
 // layouts
 import AuthLayout from '../../layouts/AuthLayout';
 // components
@@ -76,11 +76,21 @@ export default function Register() {
 
           <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
             By registering, I agree to Minimal&nbsp;
-            <Link underline="always" color="text.primary" href="#">
+            <Link
+              underline="always"
+              color="text.primary"
+              component={RouterLink}
+              to={PATH_PAGE.termsOfService}
+            >
               Terms of Service
             </Link>
             &nbsp;and&nbsp;
-            <Link underline="always" color="text.primary" href="#">
+            <Link
+              underline="always"
+              color="text.primary"
+              component={RouterLink}
+              to={PATH_PAGE.privacyPolicy}
+            >
               Privacy Policy
             </Link>
             .
