@@ -7,7 +7,6 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
-// import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
 
