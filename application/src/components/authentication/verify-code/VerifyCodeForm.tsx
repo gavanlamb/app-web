@@ -3,7 +3,7 @@ import { useSnackbar } from 'notistack5';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
-import { OutlinedInput, FormHelperText, Stack } from '@material-ui/core';
+import { TextField, FormHelperText, Stack } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -12,43 +12,24 @@ import fakeRequest from '../../../utils/fakeRequest';
 
 // ----------------------------------------------------------------------
 
-// eslint-disable-next-line consistent-return
-function maxLength(object: any) {
-  if (object.target.value.length > object.target.maxLength) {
-    return (object.target.value = object.target.value.slice(0, object.target.maxLength));
-  }
-}
 type InitialValues = {
-  code1: string;
-  code2: string;
-  code3: string;
-  code4: string;
-  code5: string;
-  code6: string;
+  email: string;
+  verificationCode: string;
 };
 
-type ValueNames = 'code1' | 'code2' | 'code3' | 'code4' | 'code5' | 'code6';
 export default function VerifyCodeForm() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const VerifyCodeSchema = Yup.object().shape({
-    code1: Yup.number().required('Code is required'),
-    code2: Yup.number().required('Code is required'),
-    code3: Yup.number().required('Code is required'),
-    code4: Yup.number().required('Code is required'),
-    code5: Yup.number().required('Code is required'),
-    code6: Yup.number().required('Code is required')
+    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    verificationCode: Yup.number().typeError('Value must be a number').required('Code is required')
   });
 
   const formik = useFormik<InitialValues>({
     initialValues: {
-      code1: '',
-      code2: '',
-      code3: '',
-      code4: '',
-      code5: '',
-      code6: ''
+      email: '',
+      verificationCode: ''
     },
     validationSchema: VerifyCodeSchema,
     onSubmit: async () => {
@@ -58,31 +39,35 @@ export default function VerifyCodeForm() {
     }
   });
 
-  const { values, errors, isValid, touched, isSubmitting, handleSubmit, getFieldProps } = formik;
+  const { errors, isValid, touched, isSubmitting, handleSubmit, getFieldProps } = formik;
 
   return (
     <FormikProvider value={formik}>
       <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-        <Stack direction="row" spacing={2} justifyContent="center">
-          {Object.keys(values).map((item) => (
-            <OutlinedInput
-              key={item}
-              {...getFieldProps(item)}
-              type="number"
-              placeholder="-"
-              onInput={maxLength}
-              error={Boolean(touched[item as ValueNames] && errors[item as ValueNames])}
-              inputProps={{
-                maxLength: 1,
-                sx: {
-                  p: 0,
-                  textAlign: 'center',
-                  width: { xs: 36, sm: 56 },
-                  height: { xs: 36, sm: 56 }
-                }
-              }}
-            />
-          ))}
+        <Stack spacing={3}>
+          <TextField
+            fullWidth
+            {...getFieldProps('email')}
+            autoComplete="email"
+            type="email"
+            label="Email address"
+            {...getFieldProps('email')}
+            error={Boolean(touched.email && errors.email)}
+            helperText={touched.email && errors.email}
+          />
+          <TextField
+            fullWidth
+            {...getFieldProps('verificationCode')}
+            type="number"
+            error={Boolean(touched.verificationCode && errors.verificationCode)}
+            helperText={touched.verificationCode && errors.verificationCode}
+            inputProps={{
+              type: 'numeric',
+              inputMode: 'numeric',
+              minLength: 6,
+              maxLength: 6
+            }}
+          />
         </Stack>
 
         <FormHelperText error={!isValid} style={{ textAlign: 'right' }}>
@@ -103,4 +88,3 @@ export default function VerifyCodeForm() {
     </FormikProvider>
   );
 }
-
