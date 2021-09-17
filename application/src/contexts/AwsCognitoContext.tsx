@@ -4,7 +4,8 @@ import {
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUserSession,
-  CognitoUserAttribute
+  CognitoUserAttribute,
+  ISignUpResult
 } from 'amazon-cognito-identity-js';
 // utils
 import axios from '../utils/axios';
@@ -170,6 +171,30 @@ function AuthProvider({ children }: { children: ReactNode }) {
           newPasswordRequired: () => {
             // Handle this on login page for update password.
             resolve({ message: 'newPasswordRequired' });
+          },
+          customChallenge: (challengeParameters: any) => {
+            console.log('customChallenge');
+            console.log(challengeParameters);
+          },
+          selectMFAType: (challengeName, challengeParameters) => {
+            console.log('selectMFAType');
+            console.log(challengeName);
+            console.log(challengeParameters);
+          },
+          mfaRequired: (challengeName, challengeParameters) => {
+            console.log('mfaRequired');
+            console.log(challengeName);
+            console.log(challengeParameters);
+          },
+          totpRequired: (challengeName, challengeParameters) => {
+            console.log('totpRequired');
+            console.log(challengeName);
+            console.log(challengeParameters);
+          },
+          mfaSetup: (challengeName, challengeParameters) => {
+            console.log('mfaSetup');
+            console.log(challengeName);
+            console.log(challengeParameters);
           }
         });
       }),
@@ -185,7 +210,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = (email: string, password: string, firstName: string, lastName: string) =>
+  const register = (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<ISignUpResult | undefined> =>
     new Promise((resolve, reject) => {
       UserPool.signUp(
         email,
@@ -196,13 +226,13 @@ function AuthProvider({ children }: { children: ReactNode }) {
           new CognitoUserAttribute({ Name: 'family_name', Value: `${lastName}` })
         ],
         [],
-        async (err) => {
+        async (err, res) => {
           if (err) {
             reject(err);
             return;
           }
-          resolve(undefined);
-          window.location.href = PATH_AUTH.login;
+          resolve(res);
+          window.location.href = PATH_AUTH.verify;
         }
       );
     });
