@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CognitoUser,
   CognitoUserPool,
@@ -65,6 +66,7 @@ const reducer = (state: AuthState, action: AwsActions) => {
 const AuthContext = createContext<AWSCognitoContextType | null>(null);
 
 function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const getUserAttributes = useCallback(
@@ -166,7 +168,24 @@ function AuthProvider({ children }: { children: ReactNode }) {
             resolve(data);
           },
           onFailure: (err) => {
-            reject(err);
+            switch (err.code) {
+              case 'NotAuthorizedException': {
+                switch (err.message) {
+                  case 'Incorrect username or password.': {
+                    reject(new Error('Username or password are incorrect, please try again.'));
+                    navigate(PATH_AUTH.login, { replace: true });
+                    break;
+                  }
+                  default: {
+                    reject(err);
+                  }
+                }
+                break;
+              }
+              default: {
+                reject(err);
+              }
+            }
           },
           newPasswordRequired: () => {
             // Handle this on login page for update password.
