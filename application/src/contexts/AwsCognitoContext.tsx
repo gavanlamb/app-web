@@ -182,6 +182,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 }
                 break;
               }
+              case 'UserNotConfirmedException': {
+                user.resendConfirmationCode((err, data) => {
+                  if (err) {
+                    reject(err.message);
+                  } else if(data){
+                    reject(new Error(
+                      'Your account is not verified. We have sent a verification email, please follow the instructions.'
+                    ));
+                  }
+                });
+                break;
+              }
               default: {
                 reject(err);
               }
@@ -217,7 +229,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
           }
         });
       }),
-    [getSession]
+    [getSession, navigate]
   );
 
   // same thing here
