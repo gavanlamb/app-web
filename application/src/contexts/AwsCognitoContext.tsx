@@ -311,6 +311,24 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
+  const confirmRegistration = (sub: string, code: string) => new Promise((resolve, reject) => {
+    const cognitoUser = new CognitoUser({
+      Username: sub,
+      Pool: UserPool
+    });
+
+    cognitoUser.confirmRegistration(
+      code,
+      false,
+      (err, result) => {
+        if(result){
+          resolve(result);
+        } else if (err){
+          reject(err);
+        }
+      });
+  });
+
   return (
     <AuthContext.Provider
       value={{
@@ -329,7 +347,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateProfile,
-        resetPassword
+        resetPassword,
+        confirmRegistration
       }}
     >
       {children}
