@@ -2,24 +2,21 @@ import * as Yup from 'yup';
 import { useSnackbar } from 'notistack5';
 import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
-// material
+// UI
+import closeFill from '@iconify/icons-eva/close-fill';
 import { TextField, FormHelperText, Stack } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// routes
-import { PATH_DASHBOARD } from '../../../routes/paths';
+import { Icon } from '@iconify/react';
+import { MIconButton } from '../../@material-extend';
 // utils
-import fakeRequest from '../../../utils/fakeRequest';
+import useIsMountedRef from '../../../hooks/useIsMountedRef';
+import { InitialValues, Props } from "./types";
 
-// ----------------------------------------------------------------------
-
-type InitialValues = {
-  email: string;
-  verificationCode: string;
-};
-
-export default function VerifyCodeForm() {
+export default function VerifyCodeForm(props: Props) {
   const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
+  const isMountedRef = useIsMountedRef();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const isLinkValidation = props.sub ? true : false
 
   const VerifyCodeSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -32,10 +29,28 @@ export default function VerifyCodeForm() {
       verificationCode: ''
     },
     validationSchema: VerifyCodeSchema,
-    onSubmit: async () => {
-      await fakeRequest(500);
-      enqueueSnackbar('Verify success', { variant: 'success' });
-      navigate(PATH_DASHBOARD.root);
+    onSubmit: async (values, { setErrors, setSubmitting, resetForm }) => {
+      try {
+        // verify code call
+        // login
+        enqueueSnackbar('Successfully verified your account', {
+          variant: 'success',
+          action: (key) => (
+            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
+              <Icon icon={closeFill} />
+            </MIconButton>
+          )
+        });
+        if (isMountedRef.current) {
+          setSubmitting(false);
+        }
+      } catch (error) {
+        resetForm();
+        if (isMountedRef.current) {
+          setSubmitting(false);
+          setErrors({ afterSubmit: error.message });
+        }
+      }
     }
   });
 
