@@ -19,13 +19,12 @@ import {
   FormControlLabel
 } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
+import { MIconButton } from '../../@material-extend';
 // routes
 import { PATH_AUTH } from '../../../routes/paths';
 // hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
-//
-import { MIconButton } from '../../@material-extend';
 
 // ----------------------------------------------------------------------
 type InitialValues = {
@@ -35,8 +34,8 @@ type InitialValues = {
   afterSubmit?: string;
 };
 export default function LoginForm() {
-  const { login } = useAuth();
   const isMountedRef = useIsMountedRef();
+  const { login } = useAuth();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [showPassword, setShowPassword] = useState(false);
 
