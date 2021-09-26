@@ -146,8 +146,9 @@ resource "aws_cognito_user_pool_client" "app" {
   var.cognito_allowed_oauth_scopes
   )
   callback_urls = [
+    "https://${var.domain_name}",
     "https://${var.domain_name}/dashboard"]
-  default_redirect_uri = "https://${var.domain_name}/dashboard"
+  default_redirect_uri = "https://${var.domain_name}"
   enable_token_revocation = true
   explicit_auth_flows = [
     "ALLOW_USER_SRP_AUTH",
@@ -155,7 +156,7 @@ resource "aws_cognito_user_pool_client" "app" {
   ]
   generate_secret = false
   logout_urls = [
-    "https://${var.domain_name}/logout.html"]
+    "https://${var.domain_name}/auth/logout"]
   prevent_user_existence_errors = "ENABLED"
   read_attributes = [
     "email",
