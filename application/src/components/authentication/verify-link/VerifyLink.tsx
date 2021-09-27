@@ -31,7 +31,7 @@ export default function VerifyLink(props: Props) {
     };
 
     verify();
-  }, [confirmRegistration, setVerificationError, props]);
+  }, [confirmRegistration, setVerificationError, enqueueSnackbar, closeSnackbar, props]);
 
   return (
     <>

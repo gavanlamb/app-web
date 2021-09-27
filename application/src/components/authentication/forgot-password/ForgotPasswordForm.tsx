@@ -6,20 +6,11 @@ import { LoadingButton } from '@material-ui/lab';
 // hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
+import { InitialValues, ResetPasswordFormProps } from './types';
 
 // ----------------------------------------------------------------------
 
-type InitialValues = {
-  email: string;
-  afterSubmit?: string;
-};
-
-type ResetPasswordFormProps = {
-  onSent: VoidFunction;
-  onGetEmail: (value: string) => void;
-};
-
-export default function ResetPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
+export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
   const { resetPassword } = useAuth();
   const isMountedRef = useIsMountedRef();
 
