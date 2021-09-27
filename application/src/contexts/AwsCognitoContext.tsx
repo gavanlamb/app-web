@@ -186,10 +186,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 user.resendConfirmationCode((err, data) => {
                   if (err) {
                     reject(err.message);
-                  } else if(data){
-                    reject(new Error(
-                      'Your account is not verified. We have sent a verification email, please follow the instructions.'
-                    ));
+                  } else if (data) {
+                    reject(
+                      new Error(
+                        'Unfortunately, your account is not verified. We have sent a verification email, please follow the instructions.'
+                      )
+                    );
                   }
                 });
                 break;
@@ -311,23 +313,40 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
-  const confirmRegistration = (sub: string, code: string) => new Promise((resolve, reject) => {
-    const cognitoUser = new CognitoUser({
-      Username: sub,
-      Pool: UserPool
-    });
+  const confirmRegistration = (userId: string, code: string) =>
+    new Promise((resolve, reject) => {
+      const user = new CognitoUser({
+        Username: userId,
+        Pool: UserPool
+      });
 
-    cognitoUser.confirmRegistration(
-      code,
-      false,
-      (err, result) => {
-        if(result){
+      user.confirmRegistration(code, false, (err, result) => {
+        if (result) {
           resolve(result);
-        } else if (err){
-          reject(err);
+          navigate(PATH_AUTH.login, { replace: true });
+        } else if (err) {
+          switch (err.__type) {
+            case 'ExpiredCodeException': {
+              user.resendConfirmationCode((resendError, resendData) => {
+                if (resendError) {
+                  reject(resendError.message);
+                } else if (resendData) {
+                  reject(
+                    new Error(
+                      "Unfortunately that verification link is invalid. We've sent you a new verification link, please check your email."
+                    )
+                  );
+                }
+              });
+              break;
+            }
+            default: {
+              reject(err);
+            }
+          }
         }
       });
-  });
+    });
 
   return (
     <AuthContext.Provider

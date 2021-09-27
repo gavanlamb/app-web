@@ -1,16 +1,12 @@
-import { Icon } from '@iconify/react';
-import { Link as RouterLink } from 'react-router-dom';
-import arrowIosBackFill from '@iconify/icons-eva/arrow-ios-back-fill';
+import { useLocation } from 'react-router-dom';
 // material
 import { styled } from '@material-ui/core/styles';
-import { Box, Button, Link, Container, Typography } from '@material-ui/core';
+import { Box, Container, Typography } from '@material-ui/core';
 // layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
-// routes
-import { PATH_AUTH } from '../../routes/paths';
 // components
 import Page from '../../components/Page';
-import { VerifyCodeForm } from '../../components/authentication/verify-code';
+import VerifyLink from '../../components/authentication/verify-link/VerifyLink';
 
 // ----------------------------------------------------------------------
 
@@ -24,41 +20,26 @@ const RootStyle = styled(Page)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function VerifyCode() {
+  const searchParameters = new URLSearchParams(useLocation().search);
+  const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
+  const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
+
   return (
-    <RootStyle title="Verify | Minimal UI">
+    <RootStyle title="Verify | Expensely">
       <LogoOnlyLayout />
-
       <Container>
-        <Box sx={{ maxWidth: 480, mx: 'auto' }}>
-          <Button
-            size="small"
-            component={RouterLink}
-            to={PATH_AUTH.login}
-            startIcon={<Icon icon={arrowIosBackFill} width={20} height={20} />}
-            sx={{ mb: 3 }}
-          >
-            Back
-          </Button>
-
-          <Typography variant="h3" paragraph>
-            Please check your email!
-          </Typography>
-          <Typography sx={{ color: 'text.secondary' }}>
-            We have emailed a 6-digit confirmation code to acb@domain, please enter the code in
-            below box to verify your email.
-          </Typography>
-
-          <Box sx={{ mt: 5, mb: 3 }}>
-            <VerifyCodeForm sub={""} code={""}/>
+        {code && userId ? (
+          <VerifyLink userId={userId} code={code} />
+        ) : (
+          <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
+            <Typography variant="h3" paragraph>
+              Oops, something has gone wrong!
+            </Typography>
+            <Typography sx={{ color: 'text.secondary', mb: 5 }}>
+              We're not able to verify you account right now.
+            </Typography>
           </Box>
-
-          <Typography variant="body2" align="center">
-            Don’t have a code? &nbsp;
-            <Link variant="subtitle2" underline="none" onClick={() => {}}>
-              Resend code
-            </Link>
-          </Typography>
-        </Box>
+        )}
       </Container>
     </RootStyle>
   );
