@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@material-ui/core/styles';
 import { Box, Button, Container, Typography } from '@material-ui/core';
@@ -9,7 +9,7 @@ import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
 import { PATH_AUTH } from '../../routes/paths';
 // components
 import Page from '../../components/Page';
-import { ResetPasswordForm } from '../../components/authentication/reset-password';
+import { ForgotPasswordForm } from '../../components/authentication/forgot-password';
 //
 import { SentIcon } from '../../assets';
 
@@ -28,6 +28,9 @@ const RootStyle = styled(Page)(({ theme }) => ({
 export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const searchParameters = new URLSearchParams(useLocation().search);
+  const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
+  const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
 
   return (
     <RootStyle title="Reset Password | Expensely">
@@ -45,7 +48,7 @@ export default function ResetPassword() {
                 link to reset your password.
               </Typography>
 
-              <ResetPasswordForm
+              <ForgotPasswordForm
                 onSent={() => setSent(true)}
                 onGetEmail={(value) => setEmail(value)}
               />
@@ -65,10 +68,10 @@ export default function ResetPassword() {
               <SentIcon sx={{ mb: 5, mx: 'auto', height: 160 }} />
 
               <Typography variant="h3" gutterBottom>
-                Request sent successfully
+                We've sent you an email
               </Typography>
               <Typography>
-                We have sent a confirmation email to &nbsp;
+                You should receive a confirmation email to &nbsp;
                 <strong>{email}</strong>
                 <br />
                 Please check your email.

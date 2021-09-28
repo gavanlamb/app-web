@@ -196,13 +196,30 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 });
                 break;
               }
+              case 'PasswordResetRequiredException': {
+                user.forgotPassword({
+                  onSuccess: () => {
+                    reject(
+                      new Error(
+                        "You must reset your password. We've sent you an email, please follow the instructions."
+                      )
+                    );
+                  },
+                  onFailure: (err) => {
+                    reject(new Error(err.message));
+                  }
+                });
+                break;
+              }
               default: {
+                console.log(err);
                 reject(err);
               }
             }
           },
-          newPasswordRequired: () => {
+          newPasswordRequired: (userAttributes, requiredAttributes) => {
             // Handle this on login page for update password.
+            console.log('newPasswordRequired');
             resolve({ message: 'newPasswordRequired' });
           },
           customChallenge: (challengeParameters: any) => {
