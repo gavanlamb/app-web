@@ -287,7 +287,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
       );
     });
 
-  const resetPassword = (email: string) =>
+  const forgotPassword = (email: string) =>
     new Promise((resolve, reject) => {
       const cognitoUser = new CognitoUser({
         Username: email,
@@ -296,11 +296,31 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       cognitoUser.forgotPassword({
         onSuccess: (data) => {
-          console.log(data);
           resolve(data);
         },
         onFailure: (err) => {
-          console.log(err);
+          reject(err);
+        }
+      });
+    });
+
+  const resetPassword = (userId: string, code: string, password: string) =>
+    new Promise((resolve, reject) => {
+      const user = new CognitoUser({
+        Username: userId,
+        Pool: UserPool
+      });
+
+      console.log(userId);
+      console.log(code);
+      console.log(password);
+      user.confirmPassword(code, password, {
+        onSuccess: async () => {
+          // login
+          await login(userId, password);
+          resolve({});
+        },
+        onFailure: (err: Error) => {
           reject(err);
         }
       });
@@ -383,6 +403,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateProfile,
+        forgotPassword,
         resetPassword,
         confirmRegistration
       }}

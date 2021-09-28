@@ -51,11 +51,7 @@ export default function RegisterForm() {
     validationSchema: RegisterSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
-        const t = await register(values.email, values.password, values.firstName, values.lastName);
-        console.error(t?.codeDeliveryDetails);
-        console.error(t?.user);
-        console.error(t?.userSub);
-        console.error(t?.userConfirmed);
+        await register(values.email, values.password, values.firstName, values.lastName);
         enqueueSnackbar('Register success', {
           variant: 'success',
           action: (key) => (
@@ -68,7 +64,6 @@ export default function RegisterForm() {
           setSubmitting(false);
         }
       } catch (error) {
-        console.error(error);
         if (isMountedRef.current) {
           setErrors({ afterSubmit: error.message });
           setSubmitting(false);

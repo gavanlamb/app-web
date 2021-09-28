@@ -12,8 +12,7 @@ import Page from '../../components/Page';
 import { ForgotPasswordForm } from '../../components/authentication/forgot-password';
 //
 import { SentIcon } from '../../assets';
-
-// ----------------------------------------------------------------------
+import { ResetPasswordForm } from '../../components/authentication/reset-password';
 
 const RootStyle = styled(Page)(({ theme }) => ({
   display: 'flex',
@@ -23,11 +22,10 @@ const RootStyle = styled(Page)(({ theme }) => ({
   padding: theme.spacing(12, 0)
 }));
 
-// ----------------------------------------------------------------------
-
 export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+
   const searchParameters = new URLSearchParams(useLocation().search);
   const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
   const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
@@ -38,7 +36,7 @@ export default function ResetPassword() {
 
       <Container>
         <Box sx={{ maxWidth: 480, mx: 'auto' }}>
-          {!sent ? (
+          {code && userId ? (
             <>
               <Typography variant="h3" paragraph>
                 Forgot your password?
@@ -48,10 +46,7 @@ export default function ResetPassword() {
                 link to reset your password.
               </Typography>
 
-              <ForgotPasswordForm
-                onSent={() => setSent(true)}
-                onGetEmail={(value) => setEmail(value)}
-              />
+              <ResetPasswordForm code={code} userId={userId} onSent={() => setSent(true)} />
 
               <Button
                 fullWidth

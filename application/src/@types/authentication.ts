@@ -33,7 +33,8 @@ export type AWSCognitoContextType = {
     lastName: string
   ) => Promise<ISignUpResult | undefined>;
   logout: VoidFunction;
-  resetPassword: (email: string) => Promise<unknown>;
+  forgotPassword: (email: string) => Promise<unknown>;
+  resetPassword: (userId: string, code: string, password: string) => Promise<unknown>;
   updateProfile: (email: string, firstName: string, lastName: string) => Promise<unknown>;
   confirmRegistration: (userId: string, code: string) => Promise<unknown>;
 };

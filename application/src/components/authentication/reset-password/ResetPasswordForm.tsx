@@ -1,34 +1,38 @@
 import * as Yup from 'yup';
 import { Form, FormikProvider, useFormik } from 'formik';
+import { Icon } from '@iconify/react';
+import eyeFill from '@iconify/icons-eva/eye-fill';
+import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
 // material
-import { TextField, Alert, Stack } from '@material-ui/core';
+import { TextField, Alert, Stack, InputAdornment, IconButton } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
 // hooks
+import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import { InitialValues, ResetPasswordFormProps } from './types';
 
 // ----------------------------------------------------------------------
 
-export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
-  const { forgotPassword } = useAuth();
+export default function ResetPasswordForm(props: ResetPasswordFormProps) {
+  const { resetPassword } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const isMountedRef = useIsMountedRef();
 
   const ResetPasswordSchema = Yup.object().shape({
-    email: Yup.string().email('Email must be a valid email address').required('Email is required')
+    password: Yup.string().required('Password is required')
   });
 
   const formik = useFormik<InitialValues>({
     initialValues: {
-      email: ''
+      password: ''
     },
     validationSchema: ResetPasswordSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
-        await forgotPassword(values.email);
+        await resetPassword(props.userId, props.code, values.password);
         if (isMountedRef.current) {
-          onSent();
-          onGetEmail(formik.values.email);
+          props.onSent();
           setSubmitting(false);
         }
       } catch (error) {
@@ -50,11 +54,21 @@ export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPassword
 
           <TextField
             fullWidth
-            {...getFieldProps('email')}
-            type="email"
-            label="Email address"
-            error={Boolean(touched.email && errors.email)}
-            helperText={touched.email && errors.email}
+            autoComplete="current-password"
+            type={showPassword ? 'text' : 'password'}
+            label="Password"
+            {...getFieldProps('password')}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton edge="end" onClick={() => setShowPassword((prev) => !prev)}>
+                    <Icon icon={showPassword ? eyeFill : eyeOffFill} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+            error={Boolean(touched.password && errors.password)}
+            helperText={touched.password && errors.password}
           />
 
           <LoadingButton
