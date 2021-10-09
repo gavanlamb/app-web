@@ -1,4 +1,3 @@
-import firebase from 'firebase/app';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 export type ActionMap<M extends { [index: string]: any }> = {

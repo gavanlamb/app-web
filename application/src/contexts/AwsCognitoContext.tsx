@@ -308,28 +308,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
-  const resetPassword = (userId: string, code: string, password: string) =>
-    new Promise((resolve, reject) => {
-      const user = new CognitoUser({
-        Username: userId,
-        Pool: UserPool
-      });
-
-      console.log(userId);
-      console.log(code);
-      console.log(password);
-      user.confirmPassword(code, password, {
-        onSuccess: async () => {
-          // login
-          await login(userId, password);
-          resolve({});
-        },
-        onFailure: (err: Error) => {
-          reject(err);
-        }
-      });
-    });
-
   const updateProfile = (email: string, firstName: string, lastName: string) =>
     new Promise((resolve, reject) => {
       getSession().then((session) => {
