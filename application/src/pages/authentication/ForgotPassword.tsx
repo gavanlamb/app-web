@@ -68,7 +68,7 @@ export default function ForgotPassword() {
                 Request sent successfully
               </Typography>
               <Typography>
-                We have sent an email with instructions on how to change your password to &nbsp;
+                We have sent an email with instructions on how to change your password to&nbsp;
                 <strong>{email}</strong>
               </Typography>
 

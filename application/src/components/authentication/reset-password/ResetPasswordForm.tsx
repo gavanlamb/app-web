@@ -32,10 +32,10 @@ export default function ResetPasswordForm(props: ResetPasswordFormProps) {
       try {
         await resetPassword(props.userId, props.code, values.password);
         if (isMountedRef.current) {
-          props.onSent();
           setSubmitting(false);
         }
       } catch (error) {
+        console.log(error);
         if (isMountedRef.current) {
           setErrors({ afterSubmit: error.message });
           setSubmitting(false);
@@ -54,7 +54,6 @@ export default function ResetPasswordForm(props: ResetPasswordFormProps) {
 
           <TextField
             fullWidth
-            autoComplete="current-password"
             type={showPassword ? 'text' : 'password'}
             label="Password"
             {...getFieldProps('password')}

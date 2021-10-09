@@ -23,9 +23,6 @@ const RootStyle = styled(Page)(({ theme }) => ({
 }));
 
 export default function ResetPassword() {
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
-
   const searchParameters = new URLSearchParams(useLocation().search);
   const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
   const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
@@ -39,14 +36,13 @@ export default function ResetPassword() {
           {code && userId ? (
             <>
               <Typography variant="h3" paragraph>
-                Forgot your password?
+                Reset your password
               </Typography>
               <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-                Please enter the email address associated with your account and We will email you a
-                link to reset your password.
+                Please enter your new password below
               </Typography>
 
-              <ResetPasswordForm code={code} userId={userId} onSent={() => setSent(true)} />
+              <ResetPasswordForm code={code} userId={userId} />
 
               <Button
                 fullWidth
@@ -63,14 +59,9 @@ export default function ResetPassword() {
               <SentIcon sx={{ mb: 5, mx: 'auto', height: 160 }} />
 
               <Typography variant="h3" gutterBottom>
-                We've sent you an email
+                Something is wrong
               </Typography>
-              <Typography>
-                You should receive a confirmation email to &nbsp;
-                <strong>{email}</strong>
-                <br />
-                Please check your email.
-              </Typography>
+              <Typography>That link doesn't look valid</Typography>
 
               <Button
                 size="large"

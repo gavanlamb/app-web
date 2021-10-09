@@ -11,7 +11,7 @@ import {
 // utils
 import axios from '../utils/axios';
 // routes
-import { PATH_AUTH } from '../routes/paths';
+import { PATH_AUTH, PATH_DASHBOARD } from '../routes/paths';
 // @types
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
 //
@@ -310,17 +310,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
         Username: userId,
         Pool: UserPool
       });
-
-      console.log(userId);
-      console.log(code);
-      console.log(password);
       user.confirmPassword(code, password, {
         onSuccess: async () => {
-          // login
           await login(userId, password);
+          navigate(PATH_DASHBOARD.root, { replace: true });
           resolve({});
         },
         onFailure: (err: Error) => {
+          console.log(err);
           reject(err);
         }
       });

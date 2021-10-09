@@ -6,5 +6,4 @@ export type InitialValues = {
 export type ResetPasswordFormProps = {
   userId: string;
   code: string;
-  onSent: VoidFunction;
 };
