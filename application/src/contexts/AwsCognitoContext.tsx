@@ -217,34 +217,19 @@ function AuthProvider({ children }: { children: ReactNode }) {
               }
             }
           },
-          newPasswordRequired: (userAttributes, requiredAttributes) => {
-            // Handle this on login page for update password.
-            console.log('newPasswordRequired');
-            resolve({ message: 'newPasswordRequired' });
-          },
-          customChallenge: (challengeParameters: any) => {
-            console.log('customChallenge');
-            console.log(challengeParameters);
-          },
-          selectMFAType: (challengeName, challengeParameters) => {
-            console.log('selectMFAType');
-            console.log(challengeName);
-            console.log(challengeParameters);
-          },
-          mfaRequired: (challengeName, challengeParameters) => {
-            console.log('mfaRequired');
-            console.log(challengeName);
-            console.log(challengeParameters);
-          },
-          totpRequired: (challengeName, challengeParameters) => {
-            console.log('totpRequired');
-            console.log(challengeName);
-            console.log(challengeParameters);
-          },
-          mfaSetup: (challengeName, challengeParameters) => {
-            console.log('mfaSetup');
-            console.log(challengeName);
-            console.log(challengeParameters);
+          newPasswordRequired: () => {
+            user.forgotPassword({
+              onSuccess: () => {
+                reject(
+                  new Error(
+                    "You must reset your password. We've sent you an email, please follow the instructions."
+                  )
+                );
+              },
+              onFailure: (err) => {
+                reject(new Error(err.message));
+              }
+            });
           }
         });
       }),
