@@ -264,10 +264,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
         async (err, res) => {
           if (err) {
             reject(err);
-            return;
+          } else {
+            resolve(res);
           }
-          resolve(res);
-          window.location.href = PATH_AUTH.verify;
         }
       );
     });
