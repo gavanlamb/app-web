@@ -14,16 +14,7 @@ import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 //
 import { MIconButton } from '../../@material-extend';
-
-// ----------------------------------------------------------------------
-
-type InitialValues = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  afterSubmit?: string;
-};
+import { InitialValues } from "./types";
 
 export default function RegisterForm() {
   const { register } = useAuth();

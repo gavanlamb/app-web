@@ -12,8 +12,6 @@ import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import { InitialValues, ResetPasswordFormProps } from './types';
 
-// ----------------------------------------------------------------------
-
 export default function ResetPasswordForm(props: ResetPasswordFormProps) {
   const { resetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);

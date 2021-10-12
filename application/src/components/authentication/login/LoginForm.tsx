@@ -25,14 +25,8 @@ import { PATH_AUTH } from '../../../routes/paths';
 // hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
+import {InitialValues} from "./types";
 
-// ----------------------------------------------------------------------
-type InitialValues = {
-  email: string;
-  password: string;
-  remember: boolean;
-  afterSubmit?: string;
-};
 export default function LoginForm() {
   const isMountedRef = useIsMountedRef();
   const { login } = useAuth();
