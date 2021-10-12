@@ -59,11 +59,10 @@ export default function Router() {
             </GuestGuard>
           )
         },
-        { path: 'login-unprotected', element: <Login /> },
-        { path: 'register-unprotected', element: <Register /> },
         { path: 'reset-password', element: <ResetPassword /> },
         { path: 'forgot-password', element: <ForgotPassword /> },
-        { path: 'verify', element: <VerifyCode /> }
+        { path: 'verify', element: <Verify /> },
+        { path: 'resend-verification', element: <ResendVerificationLink /> }
       ]
     },
 
@@ -237,7 +236,10 @@ export default function Router() {
 const Login = Loadable(lazy(() => import('../pages/authentication/Login')));
 const Register = Loadable(lazy(() => import('../pages/authentication/Register')));
 const ResetPassword = Loadable(lazy(() => import('../pages/authentication/ResetPassword')));
-const VerifyCode = Loadable(lazy(() => import('../pages/authentication/VerifyCode')));
+const Verify = Loadable(lazy(() => import('../pages/authentication/Verify')));
+const ResendVerificationLink = Loadable(
+  lazy(() => import('../pages/authentication/ResendVerificationLink'))
+);
 const ForgotPassword = Loadable(lazy(() => import('../pages/authentication/ForgotPassword')));
 // Dashboard
 const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));

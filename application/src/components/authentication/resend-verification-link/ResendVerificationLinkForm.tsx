@@ -1,20 +1,17 @@
 import * as Yup from 'yup';
 import { Form, FormikProvider, useFormik } from 'formik';
-// material
-import { TextField, Alert, Stack } from '@material-ui/core';
+import { Alert, Stack, TextField } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// hooks
-import useAuth from '../../../hooks/useAuth';
+import { ResendVerificationProps } from './types';
+import { InitialValues } from '../forgot-password/types';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
-import { InitialValues, ResetPasswordFormProps } from './types';
+import useAuth from '../../../hooks/useAuth';
 
-// ----------------------------------------------------------------------
-
-export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
-  const { forgotPassword } = useAuth();
+export default function ResendVerificationLinkForm(props: ResendVerificationProps) {
+  const { resendVerificationLink } = useAuth();
   const isMountedRef = useIsMountedRef();
 
-  const ForgotPasswordSchema = Yup.object().shape({
+  const ResendVerificationLinkSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required')
   });
 
@@ -22,13 +19,13 @@ export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPassword
     initialValues: {
       email: ''
     },
-    validationSchema: ForgotPasswordSchema,
+    validationSchema: ResendVerificationLinkSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
-        await forgotPassword(values.email);
+        await resendVerificationLink(values.email);
         if (isMountedRef.current) {
-          onSent();
-          onGetEmail(formik.values.email);
+          props.onSent();
+          props.onGetEmail(formik.values.email);
           setSubmitting(false);
         }
       } catch (error) {
@@ -64,7 +61,7 @@ export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPassword
             variant="contained"
             loading={isSubmitting}
           >
-            Reset Password
+            Resend verification link
           </LoadingButton>
         </Stack>
       </Form>

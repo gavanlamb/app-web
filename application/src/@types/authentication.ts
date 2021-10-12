@@ -36,4 +36,5 @@ export type AWSCognitoContextType = {
   resetPassword: (userId: string, code: string, password: string) => Promise<unknown>;
   updateProfile: (email: string, firstName: string, lastName: string) => Promise<unknown>;
   confirmRegistration: (userId: string, code: string) => Promise<unknown>;
+  resendVerificationLink: (email: string) => Promise<unknown>;
 };

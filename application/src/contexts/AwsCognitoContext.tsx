@@ -366,6 +366,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
+  const resendVerificationLink = (email: string) =>
+    new Promise((resolve, reject) => {
+      const user = new CognitoUser({
+        Username: email,
+        Pool: UserPool
+      });
+
+      user.resendConfirmationCode((err, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          switch (err?.name) {
+            default: {
+              console.log(err);
+              reject(err);
+            }
+          }
+        }
+      });
+    });
+
   return (
     <AuthContext.Provider
       value={{
@@ -386,7 +407,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         forgotPassword,
         resetPassword,
-        confirmRegistration
+        confirmRegistration,
+        resendVerificationLink
       }}
     >
       {children}

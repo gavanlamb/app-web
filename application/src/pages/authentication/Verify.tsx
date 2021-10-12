@@ -6,7 +6,7 @@ import { Box, Container, Typography } from '@material-ui/core';
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
 // components
 import Page from '../../components/Page';
-import VerifyLink from '../../components/authentication/verify-link/VerifyLink';
+import VerifyLink from '../../components/authentication/verify/VerifyLink';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ const RootStyle = styled(Page)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function VerifyCode() {
+export default function Verify() {
   const searchParameters = new URLSearchParams(useLocation().search);
   const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
   const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
