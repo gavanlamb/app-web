@@ -1,17 +1,11 @@
 import { Link as RouterLink } from 'react-router-dom';
-// material
 import { styled } from '@material-ui/core/styles';
 import { Box, Card, Stack, Link, Container, Typography } from '@material-ui/core';
-// routes
 import { PATH_AUTH } from '../../routes/paths';
-// layouts
 import AuthLayout from '../../layouts/AuthLayout';
-// components
 import Page from '../../components/Page';
 import { MHidden } from '../../components/@material-extend';
 import { LoginForm } from '../../components/authentication/login';
-
-// ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {

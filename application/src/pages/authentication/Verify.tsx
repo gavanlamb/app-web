@@ -1,14 +1,9 @@
 import { useLocation } from 'react-router-dom';
-// material
 import { styled } from '@material-ui/core/styles';
 import { Box, Container, Typography } from '@material-ui/core';
-// layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
-// components
 import Page from '../../components/Page';
 import VerifyLink from '../../components/authentication/verify/VerifyLink';
-
-// ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
   display: 'flex',
@@ -16,8 +11,6 @@ const RootStyle = styled(Page)(({ theme }) => ({
   alignItems: 'center',
   padding: theme.spacing(12, 0)
 }));
-
-// ----------------------------------------------------------------------
 
 export default function Verify() {
   const searchParameters = new URLSearchParams(useLocation().search);

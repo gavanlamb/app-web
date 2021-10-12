@@ -1,20 +1,12 @@
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-// material
 import { styled } from '@material-ui/core/styles';
 import { Box, Button, Container, Typography } from '@material-ui/core';
-// layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
-// routes
 import { PATH_AUTH } from '../../routes/paths';
-// components
 import Page from '../../components/Page';
-import { ForgotPasswordForm } from '../../components/authentication/forgot-password';
-//
 import { SentIcon } from '../../assets';
 import ResendVerificationLinkForm from '../../components/authentication/resend-verification-link/ResendVerificationLinkForm';
-
-// ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
   display: 'flex',
@@ -23,8 +15,6 @@ const RootStyle = styled(Page)(({ theme }) => ({
   justifyContent: 'center',
   padding: theme.spacing(12, 0)
 }));
-
-// ----------------------------------------------------------------------
 
 export default function ResendVerificationLink() {
   const [email, setEmail] = useState('');

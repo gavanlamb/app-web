@@ -1,14 +1,10 @@
 import * as Yup from 'yup';
 import { Form, FormikProvider, useFormik } from 'formik';
-// material
 import { TextField, Alert, Stack } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import { InitialValues, ResetPasswordFormProps } from './types';
-
-// ----------------------------------------------------------------------
 
 export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
   const { forgotPassword } = useAuth();

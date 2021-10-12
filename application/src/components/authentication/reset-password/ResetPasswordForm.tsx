@@ -3,10 +3,8 @@ import { Form, FormikProvider, useFormik } from 'formik';
 import { Icon } from '@iconify/react';
 import eyeFill from '@iconify/icons-eva/eye-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-// material
 import { TextField, Alert, Stack, InputAdornment, IconButton } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// hooks
 import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';

@@ -5,4 +5,3 @@ export type InitialValues = {
   lastName: string;
   afterSubmit?: string;
 };
-

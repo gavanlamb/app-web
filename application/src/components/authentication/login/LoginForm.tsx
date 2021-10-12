@@ -7,7 +7,6 @@ import { Icon } from '@iconify/react';
 import eyeFill from '@iconify/icons-eva/eye-fill';
 import closeFill from '@iconify/icons-eva/close-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-// material
 import {
   Link,
   Stack,
@@ -20,12 +19,10 @@ import {
 } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
 import { MIconButton } from '../../@material-extend';
-// routes
 import { PATH_AUTH } from '../../../routes/paths';
-// hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
-import {InitialValues} from "./types";
+import { InitialValues } from './types';
 
 export default function LoginForm() {
   const isMountedRef = useIsMountedRef();

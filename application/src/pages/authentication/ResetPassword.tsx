@@ -1,16 +1,9 @@
-import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-// material
 import { styled } from '@material-ui/core/styles';
 import { Box, Button, Container, Typography } from '@material-ui/core';
-// layouts
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
-// routes
 import { PATH_AUTH } from '../../routes/paths';
-// components
 import Page from '../../components/Page';
-import { ForgotPasswordForm } from '../../components/authentication/forgot-password';
-//
 import { SentIcon } from '../../assets';
 import { ResetPasswordForm } from '../../components/authentication/reset-password';
 
