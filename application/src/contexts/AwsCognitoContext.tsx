@@ -8,13 +8,9 @@ import {
   CognitoUserAttribute,
   ISignUpResult
 } from 'amazon-cognito-identity-js';
-// utils
 import axios from '../utils/axios';
-// routes
 import { PATH_AUTH, PATH_DASHBOARD } from '../routes/paths';
-// @types
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
-//
 import { cognitoConfig } from '../config';
 
 export const UserPool = new CognitoUserPool({
@@ -332,60 +328,77 @@ function AuthProvider({ children }: { children: ReactNode }) {
     });
 
   const confirmRegistration = (userId: string, code: string) =>
-    new Promise((resolve, reject) => {
-      const user = new CognitoUser({
-        Username: userId,
-        Pool: UserPool
-      });
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: userId,
+          Pool: UserPool
+        });
 
-      user.confirmRegistration(code, false, (err, result) => {
-        if (result) {
-          resolve(result);
-          navigate(PATH_AUTH.login, { replace: true });
-        } else if (err) {
-          switch (err.__type) {
-            case 'ExpiredCodeException': {
-              user.resendConfirmationCode((resendError, resendData) => {
-                if (resendError) {
-                  reject(resendError.message);
-                } else if (resendData) {
-                  reject(
-                    new Error(
-                      "Unfortunately that verification link is invalid. We've sent you a new verification link, please check your email."
-                    )
-                  );
-                }
-              });
-              break;
-            }
-            default: {
-              reject(err);
+        user.confirmRegistration(code, false, (err, result) => {
+          if (result) {
+            resolve(result);
+            navigate(PATH_AUTH.login, { replace: true });
+          } else if (err) {
+            switch (err.__type) {
+              case 'ExpiredCodeException': {
+                user.resendConfirmationCode((resendError, resendData) => {
+                  if (resendError) {
+                    reject(resendError.message);
+                  } else if (resendData) {
+                    reject(
+                        new Error(
+                            "Unfortunately that verification link is invalid. We've sent you a new verification link, please check your email."
+                        )
+                    );
+                  }
+                });
+                break;
+              }
+              default: {
+                reject(err);
+              }
             }
           }
-        }
+        });
       });
-    });
+
+  const confirmAttribute = (userId: string, attribute: string, code: string) =>
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: userId,
+          Pool: UserPool
+        });
+
+        user.verifyAttribute(attribute, code, {
+          onSuccess: (result) => {
+            resolve(result);
+          },
+          onFailure: (error) => {
+            reject(error);
+          }
+        });
+      });
 
   const resendVerificationLink = (email: string) =>
-    new Promise((resolve, reject) => {
-      const user = new CognitoUser({
-        Username: email,
-        Pool: UserPool
-      });
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: email,
+          Pool: UserPool
+        });
 
-      user.resendConfirmationCode((err, result) => {
-        if (result) {
-          resolve(result);
-        } else {
-          switch (err?.name) {
-            default: {
-              console.log(err);
-              reject(err);
+        user.resendConfirmationCode((err, result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            switch (err?.name) {
+              default: {
+                console.log(err);
+                reject(err);
+              }
             }
           }
-        }
+        });
       });
-    });
 
   return (
     <AuthContext.Provider
@@ -408,7 +421,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         resetPassword,
         confirmRegistration,
-        resendVerificationLink
+        resendVerificationLink,
+        confirmAttribute
       }}
     >
       {children}

@@ -48,7 +48,7 @@ const menuConfig = [
           { title: 'Register', path: PATH_AUTH.register },
           { title: 'Reset password', path: PATH_AUTH.resetPassword },
           { title: 'Forgot password', path: PATH_AUTH.forgotPassword },
-          { title: 'Verify code', path: PATH_AUTH.verify }
+          { title: 'Verify code', path: PATH_AUTH.verifyAccount }
         ]
       },
       {

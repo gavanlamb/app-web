@@ -15,7 +15,8 @@ export const PATH_AUTH = {
   register: path(ROOTS_AUTH, '/register'),
   resetPassword: path(ROOTS_AUTH, '/reset-password'),
   forgotPassword: path(ROOTS_AUTH, '/forgot-password'),
-  verify: path(ROOTS_AUTH, '/verify'),
+  verifyAccount: path(ROOTS_AUTH, '/verify/account'),
+  verifyAttribute: path(ROOTS_AUTH, '/verify/attribute'),
   resendVerification: path(ROOTS_AUTH, '/resend-verification')
 };
 

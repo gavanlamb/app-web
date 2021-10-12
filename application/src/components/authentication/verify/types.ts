@@ -1,4 +1,4 @@
-export type Props = {
+export type VerifyLinkProps = {
   userId: string;
   code: string;
 };

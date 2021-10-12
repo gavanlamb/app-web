@@ -12,13 +12,13 @@ const RootStyle = styled(Page)(({ theme }) => ({
   padding: theme.spacing(12, 0)
 }));
 
-export default function Verify() {
+export default function VerifyAccount() {
   const searchParameters = new URLSearchParams(useLocation().search);
   const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
   const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
 
   return (
-    <RootStyle title="Verify | Expensely">
+    <RootStyle title="Verify Account | Expensely">
       <LogoOnlyLayout />
       <Container>
         {code && userId ? (
@@ -29,7 +29,7 @@ export default function Verify() {
               Oops, something has gone wrong!
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-              We're not able to verify you account right now.
+              We're not able to verify your account right now.
             </Typography>
           </Box>
         )}

@@ -61,7 +61,19 @@ export default function Router() {
         },
         { path: 'reset-password', element: <ResetPassword /> },
         { path: 'forgot-password', element: <ForgotPassword /> },
-        { path: 'verify', element: <Verify /> },
+        {
+          path: 'verify',
+          children: [
+            {
+              path: 'account',
+              element: <VerifyAccount />
+            },
+            {
+              path: 'attribute',
+              element: <VerifyAttribute />
+            }
+          ]
+        },
         { path: 'resend-verification', element: <ResendVerificationLink /> }
       ]
     },
@@ -236,7 +248,8 @@ export default function Router() {
 const Login = Loadable(lazy(() => import('../pages/authentication/Login')));
 const Register = Loadable(lazy(() => import('../pages/authentication/Register')));
 const ResetPassword = Loadable(lazy(() => import('../pages/authentication/ResetPassword')));
-const Verify = Loadable(lazy(() => import('../pages/authentication/Verify')));
+const VerifyAccount = Loadable(lazy(() => import('../pages/authentication/VerifyAccount')));
+const VerifyAttribute = Loadable(lazy(() => import('../pages/authentication/VerifyAttribute')));
 const ResendVerificationLink = Loadable(
   lazy(() => import('../pages/authentication/ResendVerificationLink'))
 );

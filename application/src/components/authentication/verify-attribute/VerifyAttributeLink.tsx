@@ -6,18 +6,18 @@ import { useSnackbar } from 'notistack5';
 import LoadingScreen from '../../LoadingScreen';
 import useAuth from '../../../hooks/useAuth';
 import { MIconButton } from '../../@material-extend';
-import { VerifyLinkProps } from './types';
+import { VerifyAttributeLinkProps } from './types';
 
-export default function VerifyLink(props: VerifyLinkProps) {
-  const { confirmRegistration } = useAuth();
+export default function VerifyAttributeLink(props: VerifyAttributeLinkProps) {
+  const { confirmAttribute } = useAuth();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [verificationError, setVerificationError] = useState(null);
 
   useEffect(() => {
     const verify = async () => {
       try {
-        await confirmRegistration(props.userId, props.code);
-        enqueueSnackbar('Your account has been verified', {
+        await confirmAttribute(props.userId, props.type, props.code);
+        enqueueSnackbar('Your email has been verified', {
           variant: 'success',
           action: (key) => (
             <MIconButton size="small" onClick={() => closeSnackbar(key)}>
@@ -31,7 +31,7 @@ export default function VerifyLink(props: VerifyLinkProps) {
     };
 
     verify();
-  }, [confirmRegistration, setVerificationError, enqueueSnackbar, closeSnackbar, props]);
+  }, [confirmAttribute, setVerificationError, enqueueSnackbar, closeSnackbar, props]);
 
   return (
     <>
@@ -49,10 +49,10 @@ export default function VerifyLink(props: VerifyLinkProps) {
           <LoadingScreen />
           <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
             <Typography variant="h3" paragraph>
-              Hold tight while we verify your account.
+              Hold tight while we verify your email.
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-              Once your account is verified we will redirect you to the login page.
+              Once your email is verified we will redirect you.
             </Typography>
           </Box>
         </>
