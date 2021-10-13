@@ -346,9 +346,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
                     reject(resendError.message);
                   } else if (resendData) {
                     reject(
-                        new Error(
-                            "Unfortunately that verification link is invalid. We've sent you a new verification link, please check your email."
-                        )
+                      new Error(
+                        "Unfortunately, that verification link is invalid. We've sent you a new verification link, please check your email."
+                      )
                     );
                   }
                 });
@@ -372,9 +372,29 @@ function AuthProvider({ children }: { children: ReactNode }) {
         user.verifyAttribute(attribute, code, {
           onSuccess: (result) => {
             resolve(result);
+            navigate(PATH_AUTH.login, { replace: true });
           },
-          onFailure: (error) => {
-            reject(error);
+          onFailure: (verifyError) => {
+            switch (verifyError.name) {
+              case 'ExpiredCodeException': {
+                user.getAttributeVerificationCode(
+                  attribute,
+                  {
+                    onSuccess: () => {
+                      reject(new Error(
+                          "Unfortunately, that verification link is invalid. We've sent you a new verification link, please check your email."));
+                    },
+                    onFailure: (resendError) => {
+                      reject(resendError.message);
+                    }
+                  }
+                );
+                break;
+              }
+              default:
+                reject(verifyError);
+                break;
+            }
           }
         });
       });

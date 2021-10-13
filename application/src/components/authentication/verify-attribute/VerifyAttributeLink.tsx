@@ -17,7 +17,7 @@ export default function VerifyAttributeLink(props: VerifyAttributeLinkProps) {
     const verify = async () => {
       try {
         await confirmAttribute(props.userId, props.type, props.code);
-        enqueueSnackbar('Your email has been verified', {
+        enqueueSnackbar(`Your ${props.type} has been verified`, {
           variant: 'success',
           action: (key) => (
             <MIconButton size="small" onClick={() => closeSnackbar(key)}>
@@ -49,10 +49,10 @@ export default function VerifyAttributeLink(props: VerifyAttributeLinkProps) {
           <LoadingScreen />
           <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
             <Typography variant="h3" paragraph>
-              Hold tight while we verify your email.
+              Hold tight while we verify your {props.type}.
             </Typography>
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-              Once your email is verified we will redirect you.
+              Once your {props.type} is verified we will redirect you.
             </Typography>
           </Box>
         </>
