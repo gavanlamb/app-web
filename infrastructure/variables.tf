@@ -11,9 +11,6 @@ variable "cognito_name" {
 variable "cognito_app_client_name" {
   type = string
 }
-variable "cognito_postman_client_name" {
-  type = string
-}
 variable "cognito_allowed_oauth_scopes" {
   type = list(string)
 }
