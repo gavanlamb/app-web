@@ -1,4 +1,4 @@
-environment = "production"
+environment="production"
 region="ap-southeast-2"
 domain_name="expensely.app"
 hosted_zone="expensely.app"

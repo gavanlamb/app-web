@@ -172,7 +172,6 @@ resource "aws_cognito_user_pool_client" "app" {
     "phone_number"]
 }
 resource "aws_cognito_user_pool_client" "postman" {
-  // TODO only create for preview
   name = var.cognito_postman_client_name
 
   user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]
@@ -198,6 +197,7 @@ resource "aws_cognito_user_pool_client" "postman" {
   default_redirect_uri = "https://localhost"
   enable_token_revocation = true
   explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_USER_SRP_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
