@@ -3,45 +3,40 @@ parameters:
     displayName: Environment to deploy to
     type: string
 
-jobs:
-  - job: application
-    displayName: Application
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: NodeTool@0
-        displayName: Install Node:14.17.5
-        inputs:
-          versionSpec: 14.17.5
-      - task: Npm@1
-        displayName: Restore packages
-        inputs:
-          command: ci
-          workingDir: $(Build.SourcesDirectory)/application
-      - task: Npm@1
-        displayName: Lint fix
-        inputs:
-          command: custom
-          workingDir: $(Build.SourcesDirectory)/application
-          customCommand: run lint:fix
-      - task: Npm@1
-        displayName: Build
-        inputs:
-          command: custom
-          workingDir: $(Build.SourcesDirectory)/application
-          customCommand: run build:${{ parameters.environment }}
-      - task: ArchiveFiles@2
-        displayName: Archive
-        inputs:
-          rootFolderOrFile: $(Build.SourcesDirectory)/application/build
-          includeRootFolder: false
-          archiveType: tar
-          tarCompression: gz
-          archiveFile: $(Build.SourcesDirectory)/application/build.tar.gz
-          replaceExistingArchive: true
-      - task: PublishBuildArtifacts@1
-        displayName: Publish
-        inputs:
-          PathtoPublish: $(Build.SourcesDirectory)/application/build.tar.gz
-          ArtifactName: ${{ parameters.environment }}.build.$(Build.BuildNumber)
-          publishLocation: Container
+steps:
+  - task: NodeTool@0
+    displayName: Install Node:14.17.5
+    inputs:
+      versionSpec: 14.17.5
+  - task: Npm@1
+    displayName: Restore packages
+    inputs:
+      command: ci
+      workingDir: $(Build.SourcesDirectory)/application
+  - task: Npm@1
+    displayName: Lint fix
+    inputs:
+      command: custom
+      workingDir: $(Build.SourcesDirectory)/application
+      customCommand: run lint:fix
+  - task: Npm@1
+    displayName: Build
+    inputs:
+      command: custom
+      workingDir: $(Build.SourcesDirectory)/application
+      customCommand: run build:${{ parameters.environment }}
+  - task: ArchiveFiles@2
+    displayName: Archive
+    inputs:
+      rootFolderOrFile: $(Build.SourcesDirectory)/application/build
+      includeRootFolder: false
+      archiveType: tar
+      tarCompression: gz
+      archiveFile: $(Build.SourcesDirectory)/application/build.tar.gz
+      replaceExistingArchive: true
+  - task: PublishBuildArtifacts@1
+    displayName: Publish
+    inputs:
+      PathtoPublish: $(Build.SourcesDirectory)/application/build.tar.gz
+      ArtifactName: build.${{ parameters.environment }}.$(Build.BuildNumber)
+      publishLocation: Container

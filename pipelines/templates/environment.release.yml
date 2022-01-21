@@ -1,52 +1,42 @@
 parameters:
+  - name: artifactName
+    displayName: Terraform artifact name
+    type: string
+  - name: bucketName
+    displayName: Name of bucket to deploy to
+    type: string
   - name: environment
     displayName: Environment to deploy to
     type: string
   - name: region
     displayName: Name of AWS region to deploy into
     type: string
-  - name: stateBucketName
-    displayName: Name of the S3 bucket name for the state file
-    type: string
-  - name: stateLockTableName
-    displayName: Name of the DynamoDB table name for state locking
-    type: string
-  - name: terraformServiceConnectionName
-    displayName: Service connection name, used for init & plan
-    type: string
-  - name: awsServiceConnectionName
-    displayName: Service connection name, used for aws calls
-    type: string
-  - name: planAdditionalCommandOptions
-    displayName: Plan command arguments
-    type: string
-  - name: bucketName
-    displayName: Name of bucket tp deploy to
-    type: string
 
 jobs:
-  - template: build.yml
-    parameters:
-      environment: ${{ parameters.environment }}
+  - job: build
+    displayName: Build
+    steps:
+      - template: build.yml
+        parameters:
+          environment: ${{ parameters.environment }}
 
   - job: plan
     displayName: Plan
-    dependsOn: application
+    dependsOn:
+      - build
     steps:
-      - template: aws/terraform/plan.yml@templates
+      - template: aws/iam/configure.yml@templates
+      - template: terraform/plan.yml@templates
         parameters:
-          artifactName: ${{ parameters.environment }}.terraform
-          planAdditionalCommandOptions: ${{ parameters.planAdditionalCommandOptions }}
-          serviceConnectionName: ${{ parameters.terraformServiceConnectionName }}
-          stateBucketName: ${{ parameters.stateBucketName }}
-          stateLockTableName: ${{ parameters.stateLockTableName }}
+          artifactName: ${{ parameters.artifactName }}
+          planAdditionalCommandOptions: -var-file="variables/${{ parameters.environment }}.${{ parameters.region }}.tfvars"
           workspaceName: expensely-web-app-${{ parameters.environment }}
 
-  - template: job/approve.yml@templates
+  - template: azure-devops/approve.yml@templates
     parameters:
       dependsOn: plan
       timeoutInMinutes: 60
-      notifyUsers: '[Expensely]\Expensely Team'
+      userToNotify: '[Expensely]\Expensely Team'
 
   - deployment: deploy
     displayName: Deploy
@@ -57,31 +47,28 @@ jobs:
         deploy:
           steps:
             - download: none
-            - template: aws/terraform/apply.yml@templates
-              parameters:
-                artifactName: ${{ parameters.environment }}.terraform
-                serviceConnectionName: ${{ parameters.terraformServiceConnectionName }}
-
             - task: DownloadPipelineArtifact@2
-              displayName: Download artifact
+              displayName: Download build artifact
               inputs:
                 buildType: current
-                artifactName: ${{ parameters.environment }}.build.$(Build.BuildNumber)
-                targetPath: $(System.ArtifactsDirectory)
-
+                artifactName: build.${{ parameters.environment }}.$(Build.BuildNumber)
             - task: ExtractFiles@1
               displayName: Extract Archive
               inputs:
-                archiveFilePatterns: $(System.ArtifactsDirectory)/build.tar.gz
-                destinationFolder: $(System.ArtifactsDirectory)/web-app
+                archiveFilePatterns: $(Pipeline.Workspace)/build.tar.gz
+                destinationFolder: $(Pipeline.Workspace))/web-app
                 cleanDestinationFolder: true
-
-            - task: AWSPowerShellModuleScript@1
-              displayName: Upload website
+            - template: aws/iam/configure.yml@templates
+            - template: terraform/apply.yml@templates
+              parameters:
+                artifactName: ${{ parameters.artifactName }}
+            - task: PowerShell@2
+              displayName: Sync website
               inputs:
-                awsCredentials: ${{ parameters.awsServiceConnectionName }}
-                regionName: ${{ parameters.region }}
-                scriptType: inline
-                inlineScript: |
-                  aws s3 sync . s3://${{ parameters.bucketName }} --delete --exact-timestamps
-                workingDirectory: $(System.ArtifactsDirectory)/web-app
+                targetType: inline
+                script: |
+                  aws s3 sync . s3://${{ parameters.bucketName }} --delete --exact-timestamps --region ${{ parameters.region }}
+                errorActionPreference: default
+                showWarnings: true
+                pwsh: true
+                workingDirectory: $(Pipeline.Workspace))/web-app

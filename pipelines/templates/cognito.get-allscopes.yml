@@ -1,7 +1,4 @@
 parameters:
-  - name: serviceConnectionName
-    displayName: Name of the AWS service connection to use
-    type: string
   - name: region
     displayName: Name of the AWS region
     type: string
@@ -10,15 +7,13 @@ parameters:
     type: string
 
 steps:
-  - task: AWSPowerShellModuleScript@1
-    name: get_all_cognito_scopes
+  - task: PowerShell@2
     displayName: Get all cognito scopes
+    name: get_all_cognito_scopes
     inputs:
-      awsCredentials: ${{ parameters.serviceConnectionName }}
-      regionName: ${{ parameters.region }}
-      scriptType: 'inline'
-      inlineScript: |
-        $response=$(aws cognito-idp list-resource-servers --user-pool-id ${{ parameters.userPoolId }} --max-results 50 | ConvertFrom-Json)
+      targetType: inline
+      script: |
+        $response=$(aws cognito-idp list-resource-servers --user-pool-id ${{ parameters.userPoolId }} --max-results 50 --region ${{ parameters.region }} | ConvertFrom-Json)
         write-host($response)
         if($response.ResourceServers.Count -gt 0){
           $scopes=@()
@@ -32,7 +27,10 @@ steps:
           }
           $scopesString=$($scopes | ConvertTo-Json -Compress).replace('"','\"')
           write-host($scopesString)
-          write-host("##vso[task.setvariable variable=scopes;isOutput=true]$scopesString")
+          write-host("##vso[task.setvariable variable=SCOPES;isOutput=true]$scopesString")
         } else {
-          write-host("##vso[task.setvariable variable=scopes;isOutput=true][]")
+          write-host("##vso[task.setvariable variable=SCOPES;isOutput=true][]")
         }
+      errorActionPreference: stop
+      showWarnings: true
+      pwsh: true
