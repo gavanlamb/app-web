@@ -125,6 +125,7 @@ data "aws_iam_policy_document" "app_bucket" {
 
 // Cognito
 resource "aws_cognito_user_pool_client" "app" {
+  count = var.environment == "preview" ? 1 : 0
   name = var.cognito_app_client_name
 
   user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]
@@ -146,8 +147,9 @@ resource "aws_cognito_user_pool_client" "app" {
   var.cognito_allowed_oauth_scopes
   )
   callback_urls = [
+    "https://${var.domain_name}",
     "https://${var.domain_name}/dashboard"]
-  default_redirect_uri = "https://${var.domain_name}/dashboard"
+  default_redirect_uri = "https://${var.domain_name}"
   enable_token_revocation = true
   explicit_auth_flows = [
     "ALLOW_USER_SRP_AUTH",
@@ -155,7 +157,7 @@ resource "aws_cognito_user_pool_client" "app" {
   ]
   generate_secret = false
   logout_urls = [
-    "https://${var.domain_name}/logout.html"]
+    "https://${var.domain_name}/auth/logout"]
   prevent_user_existence_errors = "ENABLED"
   read_attributes = [
     "email",
@@ -170,51 +172,3 @@ resource "aws_cognito_user_pool_client" "app" {
     "given_name",
     "phone_number"]
 }
-resource "aws_cognito_user_pool_client" "postman" {
-  // TODO only create for preview
-  name = var.cognito_postman_client_name
-
-  user_pool_id = sort(data.aws_cognito_user_pools.expensely.ids)[0]
-
-  access_token_validity = 1
-  id_token_validity = 1
-  refresh_token_validity = 30
-  allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_flows = [
-    "code"
-  ]
-  allowed_oauth_scopes = concat(
-  [
-    "phone",
-    "email",
-    "openid",
-    "profile"
-  ],
-  var.cognito_allowed_oauth_scopes
-  )
-  callback_urls = [
-    "https://localhost"]
-  default_redirect_uri = "https://localhost"
-  enable_token_revocation = true
-  explicit_auth_flows = [
-    "ALLOW_USER_SRP_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH"
-  ]
-  generate_secret = false
-  logout_urls = [
-    "https://localhost/logout.html"]
-  prevent_user_existence_errors = "ENABLED"
-  read_attributes = [
-    "email",
-    "family_name",
-    "given_name",
-    "phone_number"]
-  supported_identity_providers = [
-    "COGNITO"]
-  write_attributes = [
-    "email",
-    "family_name",
-    "given_name",
-    "phone_number"]
-}
-

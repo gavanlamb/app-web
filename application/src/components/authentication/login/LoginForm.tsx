@@ -7,7 +7,6 @@ import { Icon } from '@iconify/react';
 import eyeFill from '@iconify/icons-eva/eye-fill';
 import closeFill from '@iconify/icons-eva/close-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-// material
 import {
   Link,
   Stack,
@@ -19,24 +18,15 @@ import {
   FormControlLabel
 } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// routes
+import { MIconButton } from '../../@material-extend';
 import { PATH_AUTH } from '../../../routes/paths';
-// hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
-//
-import { MIconButton } from '../../@material-extend';
+import { InitialValues } from './types';
 
-// ----------------------------------------------------------------------
-type InitialValues = {
-  email: string;
-  password: string;
-  remember: boolean;
-  afterSubmit?: string;
-};
 export default function LoginForm() {
-  const { login } = useAuth();
   const isMountedRef = useIsMountedRef();
+  const { login } = useAuth();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -124,7 +114,7 @@ export default function LoginForm() {
             label="Remember me"
           />
 
-          <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
+          <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.forgotPassword}>
             Forgot password?
           </Link>
         </Stack>

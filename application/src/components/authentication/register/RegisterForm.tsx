@@ -6,24 +6,12 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import eyeFill from '@iconify/icons-eva/eye-fill';
 import closeFill from '@iconify/icons-eva/close-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-// material
 import { Stack, TextField, IconButton, InputAdornment, Alert } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-// hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
-//
 import { MIconButton } from '../../@material-extend';
-
-// ----------------------------------------------------------------------
-
-type InitialValues = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  afterSubmit?: string;
-};
+import { InitialValues } from './types';
 
 export default function RegisterForm() {
   const { register } = useAuth();
@@ -64,7 +52,6 @@ export default function RegisterForm() {
           setSubmitting(false);
         }
       } catch (error) {
-        console.error(error);
         if (isMountedRef.current) {
           setErrors({ afterSubmit: error.message });
           setSubmitting(false);
@@ -101,7 +88,7 @@ export default function RegisterForm() {
 
           <TextField
             fullWidth
-            autoComplete="username"
+            autoComplete="email"
             type="email"
             label="Email address"
             {...getFieldProps('email')}

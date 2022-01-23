@@ -1,11 +1,12 @@
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@material-ui/core/styles';
 import { Box, Button, Container, Typography } from '@material-ui/core';
 import LogoOnlyLayout from '../../layouts/LogoOnlyLayout';
 import { PATH_AUTH } from '../../routes/paths';
 import Page from '../../components/Page';
+import { ForgotPasswordForm } from '../../components/authentication/forgot-password';
 import { SentIcon } from '../../assets';
-import { ResetPasswordForm } from '../../components/authentication/reset-password';
 
 const RootStyle = styled(Page)(({ theme }) => ({
   display: 'flex',
@@ -15,27 +16,30 @@ const RootStyle = styled(Page)(({ theme }) => ({
   padding: theme.spacing(12, 0)
 }));
 
-export default function ResetPassword() {
-  const searchParameters = new URLSearchParams(useLocation().search);
-  const code = searchParameters.has('code') ? searchParameters.get('code') : undefined;
-  const userId = searchParameters.has('user-id') ? searchParameters.get('user-id') : undefined;
+export default function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
 
   return (
-    <RootStyle title="Reset Password | Expensely">
+    <RootStyle title="Forgot Password | Expensely">
       <LogoOnlyLayout />
 
       <Container>
         <Box sx={{ maxWidth: 480, mx: 'auto' }}>
-          {code && userId ? (
+          {!sent ? (
             <>
               <Typography variant="h3" paragraph>
-                Reset your password
+                Forgot your password?
               </Typography>
               <Typography sx={{ color: 'text.secondary', mb: 5 }}>
-                Please enter your new password below
+                Please enter the email address associated with your account and We will email you a
+                link to reset your password.
               </Typography>
 
-              <ResetPasswordForm code={code} userId={userId} />
+              <ForgotPasswordForm
+                onSent={() => setSent(true)}
+                onGetEmail={(value) => setEmail(value)}
+              />
 
               <Button
                 fullWidth
@@ -52,9 +56,12 @@ export default function ResetPassword() {
               <SentIcon sx={{ mb: 5, mx: 'auto', height: 160 }} />
 
               <Typography variant="h3" gutterBottom>
-                Something is wrong
+                Request sent successfully
               </Typography>
-              <Typography>That link doesn't look valid</Typography>
+              <Typography>
+                We have sent an email with instructions on how to change your password to&nbsp;
+                <strong>{email}</strong>
+              </Typography>
 
               <Button
                 size="large"

@@ -25,11 +25,11 @@ steps:
               $scopes+=$scope
             }
           }
-          $scopesString=$($scopes | ConvertTo-Json -Compress).replace('"','\"')
+          $scopesString=$($scopes | ConvertTo-Json -Compress)
           write-host($scopesString)
-          write-host("##vso[task.setvariable variable=SCOPES;isOutput=true]$scopesString")
+          write-host("##vso[task.setvariable variable=SCOPES]$scopesString")
         } else {
-          write-host("##vso[task.setvariable variable=SCOPES;isOutput=true][]")
+          write-host("##vso[task.setvariable variable=SCOPES][]")
         }
       errorActionPreference: stop
       showWarnings: true

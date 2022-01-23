@@ -7,7 +7,6 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // guards
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
-// import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
 
@@ -60,10 +59,22 @@ export default function Router() {
             </GuestGuard>
           )
         },
-        { path: 'login-unprotected', element: <Login /> },
-        { path: 'register-unprotected', element: <Register /> },
         { path: 'reset-password', element: <ResetPassword /> },
-        { path: 'verify', element: <VerifyCode /> }
+        { path: 'forgot-password', element: <ForgotPassword /> },
+        {
+          path: 'verify',
+          children: [
+            {
+              path: 'account',
+              element: <VerifyAccount />
+            },
+            {
+              path: 'attribute',
+              element: <VerifyAttribute />
+            }
+          ]
+        },
+        { path: 'resend-verification', element: <ResendVerificationLink /> }
       ]
     },
 
@@ -237,7 +248,12 @@ export default function Router() {
 const Login = Loadable(lazy(() => import('../pages/authentication/Login')));
 const Register = Loadable(lazy(() => import('../pages/authentication/Register')));
 const ResetPassword = Loadable(lazy(() => import('../pages/authentication/ResetPassword')));
-const VerifyCode = Loadable(lazy(() => import('../pages/authentication/VerifyCode')));
+const VerifyAccount = Loadable(lazy(() => import('../pages/authentication/VerifyAccount')));
+const VerifyAttribute = Loadable(lazy(() => import('../pages/authentication/VerifyAttribute')));
+const ResendVerificationLink = Loadable(
+  lazy(() => import('../pages/authentication/ResendVerificationLink'))
+);
+const ForgotPassword = Loadable(lazy(() => import('../pages/authentication/ForgotPassword')));
 // Dashboard
 const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));
 const GeneralEcommerce = Loadable(lazy(() => import('../pages/dashboard/GeneralEcommerce')));

@@ -1,18 +1,16 @@
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CognitoUser,
   CognitoUserPool,
   AuthenticationDetails,
   CognitoUserSession,
-  CognitoUserAttribute
+  CognitoUserAttribute,
+  ISignUpResult
 } from 'amazon-cognito-identity-js';
-// utils
 import axios from '../utils/axios';
-// routes
-import { PATH_AUTH } from '../routes/paths';
-// @types
+import { PATH_AUTH, PATH_DASHBOARD } from '../routes/paths';
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
-//
 import { cognitoConfig } from '../config';
 
 export const UserPool = new CognitoUserPool({
@@ -64,6 +62,7 @@ const reducer = (state: AuthState, action: AwsActions) => {
 const AuthContext = createContext<AWSCognitoContextType | null>(null);
 
 function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const getUserAttributes = useCallback(
@@ -165,15 +164,72 @@ function AuthProvider({ children }: { children: ReactNode }) {
             resolve(data);
           },
           onFailure: (err) => {
-            reject(err);
+            switch (err.code) {
+              case 'NotAuthorizedException': {
+                switch (err.message) {
+                  case 'Incorrect username or password.': {
+                    reject(new Error('Username or password are incorrect, please try again.'));
+                    navigate(PATH_AUTH.login, { replace: true });
+                    break;
+                  }
+                  default: {
+                    reject(err);
+                  }
+                }
+                break;
+              }
+              case 'UserNotConfirmedException': {
+                user.resendConfirmationCode((err, data) => {
+                  if (err) {
+                    reject(err.message);
+                  } else if (data) {
+                    reject(
+                      new Error(
+                        'Unfortunately, your account is not verified. We have sent a verification email, please follow the instructions.'
+                      )
+                    );
+                  }
+                });
+                break;
+              }
+              case 'PasswordResetRequiredException': {
+                user.forgotPassword({
+                  onSuccess: () => {
+                    reject(
+                      new Error(
+                        "You must reset your password. We've sent you an email, please follow the instructions."
+                      )
+                    );
+                  },
+                  onFailure: (err) => {
+                    reject(new Error(err.message));
+                  }
+                });
+                break;
+              }
+              default: {
+                console.log(err);
+                reject(err);
+              }
+            }
           },
           newPasswordRequired: () => {
-            // Handle this on login page for update password.
-            resolve({ message: 'newPasswordRequired' });
+            user.forgotPassword({
+              onSuccess: () => {
+                reject(
+                  new Error(
+                    "You must reset your password. We've sent you an email, please follow the instructions."
+                  )
+                );
+              },
+              onFailure: (err) => {
+                reject(new Error(err.message));
+              }
+            });
           }
         });
       }),
-    [getSession]
+    [getSession, navigate]
   );
 
   // same thing here
@@ -185,7 +241,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = (email: string, password: string, firstName: string, lastName: string) =>
+  const register = (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<ISignUpResult | undefined> =>
     new Promise((resolve, reject) => {
       UserPool.signUp(
         email,
@@ -196,18 +257,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
           new CognitoUserAttribute({ Name: 'family_name', Value: `${lastName}` })
         ],
         [],
-        async (err) => {
+        async (err, res) => {
           if (err) {
             reject(err);
-            return;
+          } else {
+            resolve(res);
           }
-          resolve(undefined);
-          window.location.href = PATH_AUTH.login;
         }
       );
     });
 
-  const resetPassword = (email: string) =>
+  const forgotPassword = (email: string) =>
     new Promise((resolve, reject) => {
       const cognitoUser = new CognitoUser({
         Username: email,
@@ -216,10 +276,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
       cognitoUser.forgotPassword({
         onSuccess: (data) => {
-          console.log(data);
           resolve(data);
         },
         onFailure: (err) => {
+          reject(err);
+        }
+      });
+    });
+
+  const resetPassword = (userId: string, code: string, password: string) =>
+    new Promise((resolve, reject) => {
+      const user = new CognitoUser({
+        Username: userId,
+        Pool: UserPool
+      });
+      user.confirmPassword(code, password, {
+        onSuccess: async () => {
+          await login(userId, password);
+          navigate(PATH_DASHBOARD.root, { replace: true });
+          resolve({});
+        },
+        onFailure: (err: Error) => {
           console.log(err);
           reject(err);
         }
@@ -250,6 +327,99 @@ function AuthProvider({ children }: { children: ReactNode }) {
       });
     });
 
+  const confirmRegistration = (userId: string, code: string) =>
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: userId,
+          Pool: UserPool
+        });
+
+        user.confirmRegistration(code, false, (err, result) => {
+          if (result) {
+            resolve(result);
+            navigate(PATH_AUTH.login, { replace: true });
+          } else if (err) {
+            switch (err.__type) {
+              case 'ExpiredCodeException': {
+                user.resendConfirmationCode((resendError, resendData) => {
+                  if (resendError) {
+                    reject(resendError.message);
+                  } else if (resendData) {
+                    reject(
+                      new Error(
+                        "Unfortunately, that verification link is invalid. We've sent you a new verification link, please check your email."
+                      )
+                    );
+                  }
+                });
+                break;
+              }
+              default: {
+                reject(err);
+              }
+            }
+          }
+        });
+      });
+
+  const confirmAttribute = (userId: string, attribute: string, code: string) =>
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: userId,
+          Pool: UserPool
+        });
+
+        user.verifyAttribute(attribute, code, {
+          onSuccess: (result) => {
+            resolve(result);
+            navigate(PATH_AUTH.login, { replace: true });
+          },
+          onFailure: (verifyError) => {
+            switch (verifyError.name) {
+              case 'ExpiredCodeException': {
+                user.getAttributeVerificationCode(
+                  attribute,
+                  {
+                    onSuccess: () => {
+                      reject(new Error(
+                          "Unfortunately, that verification link is invalid. We've sent you a new verification link, please check your email."));
+                    },
+                    onFailure: (resendError) => {
+                      reject(resendError.message);
+                    }
+                  }
+                );
+                break;
+              }
+              default:
+                reject(verifyError);
+                break;
+            }
+          }
+        });
+      });
+
+  const resendVerificationLink = (email: string) =>
+      new Promise((resolve, reject) => {
+        const user = new CognitoUser({
+          Username: email,
+          Pool: UserPool
+        });
+
+        user.resendConfirmationCode((err, result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            switch (err?.name) {
+              default: {
+                console.log(err);
+                reject(err);
+              }
+            }
+          }
+        });
+      });
+
   return (
     <AuthContext.Provider
       value={{
@@ -268,7 +438,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateProfile,
-        resetPassword
+        forgotPassword,
+        resetPassword,
+        confirmRegistration,
+        resendVerificationLink,
+        confirmAttribute
       }}
     >
       {children}

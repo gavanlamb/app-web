@@ -84,17 +84,36 @@ stages:
                 - checkout: self
                 - template: aws/iam/configure.yml@templates
                 - task: PowerShell@2
+                  displayName: Create TF variables file
+                  inputs:
+                    targetType: inline
+                    script: |
+                      $formatText = @'
+                      environment="${{ variables.ENVIRONMENT }}"
+                      region="${{ variables.REGION }}"
+                      domain_name="$(PULL_REQUEST_ID).preview.expensely.app"
+                      hosted_zone="preview.expensely.app"
+                      cognito_name="expensely-preview"
+                      ttl=0
+                      cognito_app_client_name="web app preview$(PULL_REQUEST_ID)"
+                      cognito_allowed_oauth_scopes=[]
+                      '@ | Out-File -FilePath ${{ variables.ENVIRONMENT }}$(PULL_REQUEST_ID).${{ variables.REGION }}.tfvars
+                    errorActionPreference: default
+                    showWarnings: true
+                    pwsh: true
+                    workingDirectory: $(Build.SourcesDirectory)/infrastructure/variables
+                - task: PowerShell@2
                   displayName: Delete bucket contents
                   inputs:
                     targetType: inline
                     script: |
                       $url="$(PULL_REQUEST_ID).preview.expensely.app"
                       write-host($url)
-                      Get-S3Object -BucketName $url | Remove-S3Object -Force
+                      aws s3 rm s3://$url/ --recursive --region ${{ variables.REGION }}
                     errorActionPreference: stop
                     showWarnings: true
                     pwsh: true
                 - template: terraform/destroy.yml@templates
                   parameters:
-                    destroyAdditionalArguments: -var-file=variables/${{ variables.ENVIRONMENT }}.${{ variables.REGION }}.tfvars -var="domain_name=$(PULL_REQUEST_ID).preview.expensely.app" -var="cognito_allowed_oauth_scopes=[]" -var="cognito_app_client_name=web app preview$(PULL_REQUEST_ID)" -var="cognito_postman_client_name=postman preview$(PULL_REQUEST_ID)"
+                    destroyAdditionalArguments: -var-file="variables/${{ variables.ENVIRONMENT }}$(PULL_REQUEST_ID).${{ variables.REGION }}.tfvars"
                     workspaceName: expensely-web-app-preview$(PULL_REQUEST_ID)

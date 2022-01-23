@@ -1,37 +1,33 @@
 import * as Yup from 'yup';
 import { Form, FormikProvider, useFormik } from 'formik';
-import { Icon } from '@iconify/react';
-import eyeFill from '@iconify/icons-eva/eye-fill';
-import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-import { TextField, Alert, Stack, InputAdornment, IconButton } from '@material-ui/core';
+import { TextField, Alert, Stack } from '@material-ui/core';
 import { LoadingButton } from '@material-ui/lab';
-import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import { InitialValues, ResetPasswordFormProps } from './types';
 
-export default function ResetPasswordForm(props: ResetPasswordFormProps) {
-  const { resetPassword } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
+export default function ForgotPasswordForm({ onSent, onGetEmail }: ResetPasswordFormProps) {
+  const { forgotPassword } = useAuth();
   const isMountedRef = useIsMountedRef();
 
-  const ResetPasswordSchema = Yup.object().shape({
-    password: Yup.string().required('Password is required')
+  const ForgotPasswordSchema = Yup.object().shape({
+    email: Yup.string().email('Email must be a valid email address').required('Email is required')
   });
 
   const formik = useFormik<InitialValues>({
     initialValues: {
-      password: ''
+      email: ''
     },
-    validationSchema: ResetPasswordSchema,
+    validationSchema: ForgotPasswordSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
       try {
-        await resetPassword(props.userId, props.code, values.password);
+        await forgotPassword(values.email);
         if (isMountedRef.current) {
+          onSent();
+          onGetEmail(formik.values.email);
           setSubmitting(false);
         }
       } catch (error) {
-        console.log(error);
         if (isMountedRef.current) {
           setErrors({ afterSubmit: error.message });
           setSubmitting(false);
@@ -50,20 +46,11 @@ export default function ResetPasswordForm(props: ResetPasswordFormProps) {
 
           <TextField
             fullWidth
-            type={showPassword ? 'text' : 'password'}
-            label="Password"
-            {...getFieldProps('password')}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton edge="end" onClick={() => setShowPassword((prev) => !prev)}>
-                    <Icon icon={showPassword ? eyeFill : eyeOffFill} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-            error={Boolean(touched.password && errors.password)}
-            helperText={touched.password && errors.password}
+            {...getFieldProps('email')}
+            type="email"
+            label="Email address"
+            error={Boolean(touched.email && errors.email)}
+            helperText={touched.email && errors.email}
           />
 
           <LoadingButton

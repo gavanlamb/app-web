@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 export type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -30,8 +30,12 @@ export type AWSCognitoContextType = {
     password: string,
     firstName: string,
     lastName: string
-  ) => Promise<unknown>;
+  ) => Promise<ISignUpResult | undefined>;
   logout: VoidFunction;
-  resetPassword: (email: string) => Promise<unknown>;
+  forgotPassword: (email: string) => Promise<unknown>;
+  resetPassword: (userId: string, code: string, password: string) => Promise<unknown>;
   updateProfile: (email: string, firstName: string, lastName: string) => Promise<unknown>;
+  confirmRegistration: (userId: string, code: string) => Promise<unknown>;
+  resendVerificationLink: (email: string) => Promise<unknown>;
+  confirmAttribute: (userId: string, attribute: string, code: string) => Promise<unknown>;
 };
